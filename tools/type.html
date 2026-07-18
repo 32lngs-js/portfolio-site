@@ -6,42 +6,26 @@
   <title>Type Tool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:wght@400;600;700&family=DM+Serif+Display&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Space+Grotesk:wght@300..700&family=DM+Sans:wght@300..700&family=Geist+Mono:wght@400;500&family=Fragment+Mono&family=Outfit:wght@300..700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --panel-bg: #111;
-      --panel-border: rgba(255,255,255,0.08);
-      --panel-text: #e8e8e8;
-      --panel-muted: #555;
-      --panel-accent: #fff;
-      --panel-row: rgba(255,255,255,0.04);
-      --track-bg: rgba(255,255,255,0.1);
-      --thumb-color: #fff;
-      --selection-ring: #0066ff;
-    }
-
-    html, body { height: 100%; }
-
-    body {
-      display: grid;
-      grid-template-columns: 1fr 280px;
+    html, body {
+      height: 100%;
       font-family: 'Inter', system-ui, sans-serif;
       background: #f5f5f3;
-      height: 100vh;
-      overflow: hidden;
+      overflow: auto;
     }
 
     /* ══════════════════════════════
-       PREVIEW PANE
+       PREVIEW (full page)
     ══════════════════════════════ */
     .preview {
-      overflow-y: auto;
-      padding: 80px 72px;
+      padding: 80px 88px;
       display: flex;
       flex-direction: column;
-      gap: 48px;
+      gap: 52px;
+      min-height: 100vh;
     }
 
     .text-el {
@@ -50,113 +34,133 @@
       border-radius: 4px;
       padding: 2px 4px;
       margin: -2px -4px;
-      transition: box-shadow 0.15s ease;
       display: inline-block;
+      transition: box-shadow 0.12s ease;
     }
+    .text-el:hover  { box-shadow: 0 0 0 1px rgba(0,102,255,0.25); }
+    .text-el.active { box-shadow: 0 0 0 2px #0066ff; }
 
-    .text-el:hover  { box-shadow: 0 0 0 1px rgba(0,102,255,0.3); }
-    .text-el.active { box-shadow: 0 0 0 2px var(--selection-ring); }
-
-    /* Default text styles — overridden by JS */
     .text-el[data-id="display"] {
       font-family: 'DM Serif Display', serif;
-      font-size: 72px;
-      font-weight: 400;
-      line-height: 1.0;
-      letter-spacing: -0.03em;
-      color: #111;
+      font-size: 72px; font-weight: 400;
+      line-height: 1.0; letter-spacing: -0.03em; color: #111;
     }
     .text-el[data-id="heading"] {
       font-family: 'Inter', sans-serif;
-      font-size: 32px;
-      font-weight: 500;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: #111;
+      font-size: 32px; font-weight: 500;
+      line-height: 1.15; letter-spacing: -0.02em; color: #111;
     }
     .text-el[data-id="subheading"] {
       font-family: 'Inter', sans-serif;
-      font-size: 18px;
-      font-weight: 400;
-      line-height: 1.5;
-      letter-spacing: -0.01em;
-      color: #555;
+      font-size: 18px; font-weight: 400;
+      line-height: 1.5; letter-spacing: -0.01em; color: #555;
     }
     .text-el[data-id="body"] {
       font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      font-weight: 400;
-      line-height: 1.7;
-      letter-spacing: 0;
-      color: #444;
-      max-width: 520px;
+      font-size: 15px; font-weight: 400;
+      line-height: 1.7; letter-spacing: 0; color: #444; max-width: 540px;
     }
     .text-el[data-id="caption"] {
       font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      line-height: 1.4;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #888;
+      font-size: 11px; font-weight: 500;
+      line-height: 1.4; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #888;
     }
     .text-el[data-id="mono"] {
       font-family: 'Geist Mono', monospace;
-      font-size: 13px;
-      font-weight: 400;
-      line-height: 1.6;
-      letter-spacing: 0;
-      color: #555;
+      font-size: 13px; font-weight: 400;
+      line-height: 1.6; letter-spacing: 0; color: #666;
     }
 
     /* ══════════════════════════════
-       CONTROL PANEL
+       FLOATING PANEL
     ══════════════════════════════ */
-    .panel {
-      background: var(--panel-bg);
-      border-left: 1px solid var(--panel-border);
-      display: flex;
-      flex-direction: column;
+    #panel {
+      position: fixed;
+      width: 272px;
+      background: #111;
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.07),
+        0 8px 32px rgba(0,0,0,0.5),
+        0 2px 8px rgba(0,0,0,0.4);
       overflow: hidden;
+      z-index: 9999;
+      user-select: none;
+      /* Initial position: bottom-right */
+      right: 24px;
+      bottom: 24px;
     }
 
+    /* ── Header / drag handle ── */
     .panel-header {
-      padding: 16px 20px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--panel-muted);
-      border-bottom: 1px solid var(--panel-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 12px 14px 11px;
+      cursor: grab;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
     }
+    .panel-header:active { cursor: grabbing; }
 
-    .selected-tag {
+    .panel-title {
       font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .selected-badge {
+      font-size: 10px;
       font-weight: 500;
-      color: var(--panel-accent);
-      letter-spacing: 0;
-      text-transform: none;
-      background: rgba(255,255,255,0.08);
-      padding: 2px 8px;
-      border-radius: 4px;
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.1);
+      padding: 2px 7px;
+      border-radius: 100px;
+      letter-spacing: 0.02em;
     }
 
+    .minimize-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .minimize-btn:hover { background: rgba(255,255,255,0.18); }
+    .minimize-btn svg { display: block; }
+
+    /* ── Panel body ── */
     .panel-body {
-      flex: 1;
       overflow-y: auto;
-      padding: 8px 0;
+      max-height: calc(100vh - 160px);
     }
 
-    /* ─── Control row ─── */
+    .no-selection {
+      padding: 28px 0;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Control row ── */
     .control {
-      padding: 10px 20px 12px;
-    }
-
-    .control + .control {
-      border-top: 1px solid var(--panel-border);
+      padding: 10px 14px 12px;
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
 
     .control-label {
@@ -167,192 +171,170 @@
     }
 
     .control-name {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      color: var(--panel-muted);
-      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .control-value {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
-      color: var(--panel-text);
+      color: rgba(255,255,255,0.75);
       font-variant-numeric: tabular-nums;
       letter-spacing: 0;
+      font-family: 'Fragment Mono', monospace;
     }
 
-    /* ─── Range slider ─── */
+    /* ── Slider ── */
     input[type="range"] {
       -webkit-appearance: none;
       width: 100%;
       height: 2px;
-      background: var(--track-bg);
+      background: rgba(255,255,255,0.1);
       border-radius: 2px;
       outline: none;
       cursor: pointer;
     }
-
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 11px; height: 11px;
       border-radius: 50%;
-      background: var(--thumb-color);
+      background: #fff;
       cursor: pointer;
-      transition: transform 0.1s ease;
+      transition: transform 0.1s;
     }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.35); }
 
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.3);
-    }
-
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 2px;
-      border-radius: 2px;
-    }
-
-    /* ─── Font family pills ─── */
-    .family-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-
-    .family-btn {
+    /* ── Font dropdown ── */
+    .font-select {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
       padding: 7px 10px;
-      border: 1px solid var(--panel-border);
-      background: transparent;
-      color: var(--panel-muted);
-      font-size: 11px;
-      border-radius: 6px;
+      outline: none;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.15s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
     }
+    .font-select option { background: #1a1a1a; color: #e8e8e8; }
 
-    .family-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--panel-text); }
-    .family-btn.active {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.25);
-      color: var(--panel-accent);
-    }
-
-    /* ─── Align buttons ─── */
-    .align-row {
-      display: flex;
-      gap: 4px;
-    }
+    /* ── Align buttons ── */
+    .align-row { display: flex; gap: 4px; }
 
     .align-btn {
-      flex: 1;
-      padding: 6px 0;
-      border: 1px solid var(--panel-border);
+      flex: 1; padding: 6px 0;
+      border: 1px solid rgba(255,255,255,0.08);
       background: transparent;
-      color: var(--panel-muted);
-      border-radius: 5px;
+      color: rgba(255,255,255,0.3);
+      border-radius: 7px;
       cursor: pointer;
-      font-size: 12px;
-      transition: all 0.15s ease;
+      font-size: 13px;
+      transition: all 0.12s;
     }
-
-    .align-btn:hover { color: var(--panel-text); border-color: rgba(255,255,255,0.2); }
+    .align-btn:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.15); }
     .align-btn.active {
       background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.25);
-      color: var(--panel-accent);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
     }
 
-    /* ─── Transform controls ─── */
-    .xy-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
+    /* ── XY position ── */
+    .xy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .xy-field label {
-      display: block;
-      font-size: 10px;
-      color: var(--panel-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
+      display: block; font-size: 9px; color: rgba(255,255,255,0.25);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
     }
-
     .xy-field input[type="number"] {
       width: 100%;
       background: rgba(255,255,255,0.06);
-      border: 1px solid var(--panel-border);
-      border-radius: 5px;
-      color: var(--panel-text);
-      font-size: 12px;
-      padding: 6px 8px;
-      outline: none;
-      font-variant-numeric: tabular-nums;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px; color: rgba(255,255,255,0.8);
+      font-size: 11px; padding: 6px 8px; outline: none;
+      font-family: 'Fragment Mono', monospace;
     }
+    .xy-field input[type="number"]:focus { border-color: rgba(255,255,255,0.25); }
 
-    .xy-field input[type="number"]:focus {
-      border-color: rgba(255,255,255,0.25);
-    }
-
-    /* ─── CSS output ─── */
-    .css-output {
-      border-top: 1px solid var(--panel-border);
-      padding: 14px 20px;
-    }
-
-    .css-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .css-header span {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--panel-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .copy-btn {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--panel-muted);
-      background: none;
-      border: 1px solid var(--panel-border);
-      border-radius: 5px;
-      padding: 3px 10px;
+    /* ── Reset ── */
+    .reset-btn {
+      width: 100%; padding: 7px;
+      background: rgba(255,80,80,0.08);
+      border: 1px solid rgba(255,80,80,0.15);
+      border-radius: 8px;
+      color: rgba(255,100,100,0.7);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.15s ease;
-      letter-spacing: 0.02em;
+      transition: all 0.15s;
+    }
+    .reset-btn:hover {
+      background: rgba(255,80,80,0.14);
+      border-color: rgba(255,80,80,0.3);
+      color: rgba(255,120,120,0.9);
     }
 
-    .copy-btn:hover { color: var(--panel-text); border-color: rgba(255,255,255,0.2); }
-    .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+    /* ── CSS output ── */
+    .css-output {
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .css-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .css-header span {
+      font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.25);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .copy-btn {
+      font-size: 10px; font-weight: 500;
+      color: rgba(255,255,255,0.3);
+      background: none; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; padding: 2px 8px;
+      cursor: pointer; transition: all 0.12s; letter-spacing: 0.04em;
+    }
+    .copy-btn:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+    .copy-btn.copied { color: #4ade80; border-color: rgba(74,222,128,0.4); }
 
     .css-code {
-      font-family: 'Geist Mono', ui-monospace, monospace;
-      font-size: 10.5px;
-      line-height: 1.8;
-      color: rgba(255,255,255,0.45);
-      white-space: pre;
+      font-family: 'Fragment Mono', 'Geist Mono', monospace;
+      font-size: 10px; line-height: 1.9;
+      color: rgba(255,255,255,0.3); white-space: pre;
     }
+    .css-code .val { color: rgba(255,255,255,0.65); }
 
-    .css-code .prop { color: rgba(255,255,255,0.35); }
-    .css-code .val  { color: rgba(255,255,255,0.75); }
-
-    /* ─── No selection state ─── */
-    .no-selection {
-      flex: 1;
-      display: flex;
+    /* ══════════════════════════════
+       DIAL (minimized state)
+    ══════════════════════════════ */
+    #dial {
+      position: fixed;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #111;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.1),
+        0 4px 16px rgba(0,0,0,0.5);
+      display: none;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      color: var(--panel-muted);
-      letter-spacing: 0.04em;
+      cursor: pointer;
+      z-index: 9999;
+      right: 24px; bottom: 24px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
+    #dial:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 8px 24px rgba(0,0,0,0.6);
+    }
+    #dial svg { display: block; }
   </style>
 </head>
 <body>
@@ -362,210 +344,383 @@
     <div class="text-el" data-id="display" contenteditable="true" spellcheck="false">Christopher Grady</div>
     <div class="text-el" data-id="heading" contenteditable="true" spellcheck="false">Product Designer &amp; PM</div>
     <div class="text-el" data-id="subheading" contenteditable="true" spellcheck="false">Building at the intersection of systems thinking and visual craft</div>
-    <div class="text-el" data-id="body" contenteditable="true" spellcheck="false">I spend most of my time figuring out why things feel off — in products, in interfaces, in the gap between what a team ships and what a user actually experiences. That instinct for friction is what led me to design, and what keeps me close to the PM side too.</div>
+    <div class="text-el" data-id="body" contenteditable="true" spellcheck="false">I spend most of my time figuring out why things feel off — in products, in interfaces, in the gap between what a team ships and what a user actually experiences. That instinct is what led me to design, and what keeps me close to the PM side too.</div>
     <div class="text-el" data-id="caption" contenteditable="true" spellcheck="false">Currently at Amazon · Tokyo</div>
     <div class="text-el" data-id="mono" contenteditable="true" spellcheck="false">case-study-01.md</div>
   </div>
 
-  <!-- ── PANEL ── -->
-  <div class="panel">
-    <div class="panel-header">
-      Type Tool
-      <span class="selected-tag" id="selectedTag">—</span>
+  <!-- ── FLOATING PANEL ── -->
+  <div id="panel">
+    <div class="panel-header" id="dragHandle">
+      <span class="panel-title">Type</span>
+      <div class="header-right">
+        <span class="selected-badge" id="selectedBadge">—</span>
+        <button class="minimize-btn" id="minimizeBtn" title="Minimize">
+          <svg width="8" height="2" viewBox="0 0 8 2" fill="none">
+            <rect width="8" height="2" rx="1" fill="rgba(255,255,255,0.4)"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <div id="noSelection" class="no-selection">click any text to edit</div>
+    <div class="panel-body" id="panelBody">
+      <div class="no-selection" id="noSel">click any text to select</div>
 
-    <div class="panel-body" id="panelBody" style="display:none">
+      <div id="controls" style="display:none">
 
-      <!-- Size -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Size</span>
-          <span class="control-value" id="valSize">—</span>
-        </div>
-        <input type="range" id="slSize" min="8" max="120" step="0.5">
-      </div>
-
-      <!-- Weight -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Weight</span>
-          <span class="control-value" id="valWeight">—</span>
-        </div>
-        <input type="range" id="slWeight" min="100" max="900" step="100">
-      </div>
-
-      <!-- Line height -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Line Height</span>
-          <span class="control-value" id="valLH">—</span>
-        </div>
-        <input type="range" id="slLH" min="0.8" max="3.0" step="0.05">
-      </div>
-
-      <!-- Letter spacing -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Spacing</span>
-          <span class="control-value" id="valLS">—</span>
-        </div>
-        <input type="range" id="slLS" min="-0.1" max="0.4" step="0.005">
-      </div>
-
-      <!-- Font size in px: also show as relative nudge -->
-      <!-- Position offset -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Position</span>
-        </div>
-        <div class="xy-grid">
-          <div class="xy-field">
-            <label>X offset</label>
-            <input type="number" id="inpX" value="0" step="1">
+        <!-- Size -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Size</span>
+            <span class="control-value" id="valSize">—</span>
           </div>
-          <div class="xy-field">
-            <label>Y offset</label>
-            <input type="number" id="inpY" value="0" step="1">
+          <input type="range" id="slSize" min="8" max="120" step="0.5">
+        </div>
+
+        <!-- Weight -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Weight</span>
+            <span class="control-value" id="valWeight">—</span>
+          </div>
+          <input type="range" id="slWeight" min="100" max="900" step="100">
+        </div>
+
+        <!-- Line height -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Line Height</span>
+            <span class="control-value" id="valLH">—</span>
+          </div>
+          <input type="range" id="slLH" min="0.8" max="3.0" step="0.05">
+        </div>
+
+        <!-- Letter spacing -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Spacing</span>
+            <span class="control-value" id="valLS">—</span>
+          </div>
+          <input type="range" id="slLS" min="-0.1" max="0.4" step="0.005">
+        </div>
+
+        <!-- Font family -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Family</span>
+          </div>
+          <select class="font-select" id="fontSelect">
+            <optgroup label="Sans">
+              <option value="'Inter', sans-serif"              style="font-family:'Inter'">Inter</option>
+              <option value="'Space Grotesk', sans-serif"      style="font-family:'Space Grotesk'">Space Grotesk</option>
+              <option value="'DM Sans', sans-serif"            style="font-family:'DM Sans'">DM Sans</option>
+              <option value="'Outfit', sans-serif"             style="font-family:'Outfit'">Outfit</option>
+              <option value="system-ui, sans-serif">System UI</option>
+            </optgroup>
+            <optgroup label="Serif">
+              <option value="'DM Serif Display', serif"        style="font-family:'DM Serif Display'">DM Serif Display</option>
+              <option value="'Playfair Display', serif"        style="font-family:'Playfair Display'">Playfair Display</option>
+              <option value="'Cormorant Garamond', serif"      style="font-family:'Cormorant Garamond'">Cormorant Garamond</option>
+              <option value="'Lora', serif"                    style="font-family:'Lora'">Lora</option>
+              <option value="'Libre Baskerville', serif"       style="font-family:'Libre Baskerville'">Libre Baskerville</option>
+              <option value="Georgia, serif">Georgia</option>
+            </optgroup>
+            <optgroup label="Mono">
+              <option value="'Geist Mono', monospace"          style="font-family:'Geist Mono'">Geist Mono</option>
+              <option value="'Fragment Mono', monospace"        style="font-family:'Fragment Mono'">Fragment Mono</option>
+              <option value="ui-monospace, monospace">System Mono</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Align -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Align</span>
+          </div>
+          <div class="align-row">
+            <button class="align-btn" data-align="left">←</button>
+            <button class="align-btn" data-align="center">↔</button>
+            <button class="align-btn" data-align="right">→</button>
           </div>
         </div>
-      </div>
 
-      <!-- Font family -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Family</span>
+        <!-- Position -->
+        <div class="control">
+          <div class="control-label">
+            <span class="control-name">Position</span>
+          </div>
+          <div class="xy-grid">
+            <div class="xy-field">
+              <label>X</label>
+              <input type="number" id="inpX" value="0" step="1">
+            </div>
+            <div class="xy-field">
+              <label>Y</label>
+              <input type="number" id="inpY" value="0" step="1">
+            </div>
+          </div>
         </div>
-        <div class="family-grid">
-          <button class="family-btn" data-family="'Inter', sans-serif" data-label="Inter">Inter</button>
-          <button class="family-btn" data-family="'DM Serif Display', serif" data-label="DM Serif" style="font-family:'DM Serif Display',serif">DM Serif</button>
-          <button class="family-btn" data-family="'Playfair Display', serif" data-label="Playfair" style="font-family:'Playfair Display',serif">Playfair</button>
-          <button class="family-btn" data-family="'Geist Mono', monospace" data-label="Mono" style="font-family:'Geist Mono',monospace">Mono</button>
-          <button class="family-btn" data-family="Georgia, serif" data-label="Georgia" style="font-family:Georgia,serif">Georgia</button>
-          <button class="family-btn" data-family="system-ui, sans-serif" data-label="System">System</button>
-        </div>
-      </div>
 
-      <!-- Align -->
-      <div class="control">
-        <div class="control-label">
-          <span class="control-name">Align</span>
+        <!-- Reset -->
+        <div class="control">
+          <button class="reset-btn" id="resetBtn">Reset to default</button>
         </div>
-        <div class="align-row">
-          <button class="align-btn" data-align="left">←</button>
-          <button class="align-btn" data-align="center">↔</button>
-          <button class="align-btn" data-align="right">→</button>
-        </div>
-      </div>
 
-      <!-- CSS output -->
-      <div class="css-output">
-        <div class="css-header">
-          <span>CSS</span>
-          <button class="copy-btn" id="copyBtn">Copy</button>
+        <!-- CSS output -->
+        <div class="css-output">
+          <div class="css-header">
+            <span>CSS</span>
+            <button class="copy-btn" id="copyBtn">Copy</button>
+          </div>
+          <div class="css-code" id="cssOut"></div>
         </div>
-        <div class="css-code" id="cssOutput"></div>
-      </div>
 
+      </div>
     </div>
   </div>
 
-  <script>
-    let active = null;
+  <!-- ── DIAL (minimized) ── -->
+  <div id="dial" title="Open Type Tool">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <text x="3" y="12" font-family="serif" font-size="13" fill="rgba(255,255,255,0.7)">T</text>
+    </svg>
+  </div>
 
-    const els = {
-      tag:       document.getElementById('selectedTag'),
-      noSel:     document.getElementById('noSelection'),
-      body:      document.getElementById('panelBody'),
-      slSize:    document.getElementById('slSize'),
-      valSize:   document.getElementById('valSize'),
-      slWeight:  document.getElementById('slWeight'),
-      valWeight: document.getElementById('valWeight'),
-      slLH:      document.getElementById('slLH'),
-      valLH:     document.getElementById('valLH'),
-      slLS:      document.getElementById('slLS'),
-      valLS:     document.getElementById('valLS'),
-      inpX:      document.getElementById('inpX'),
-      inpY:      document.getElementById('inpY'),
-      cssOut:    document.getElementById('cssOutput'),
-      copyBtn:   document.getElementById('copyBtn'),
+  <script>
+    // ── Font map: value → display name for CSS output ──
+    const FONT_LABELS = {
+      "'Inter', sans-serif": 'Inter',
+      "'Space Grotesk', sans-serif": 'Space Grotesk',
+      "'DM Sans', sans-serif": 'DM Sans',
+      "'Outfit', sans-serif": 'Outfit',
+      'system-ui, sans-serif': 'system-ui',
+      "'DM Serif Display', serif": 'DM Serif Display',
+      "'Playfair Display', serif": 'Playfair Display',
+      "'Cormorant Garamond', serif": 'Cormorant Garamond',
+      "'Lora', serif": 'Lora',
+      "'Libre Baskerville', serif": 'Libre Baskerville',
+      'Georgia, serif': 'Georgia',
+      "'Geist Mono', monospace": 'Geist Mono',
+      "'Fragment Mono', monospace": 'Fragment Mono',
+      'ui-monospace, monospace': 'ui-monospace',
     };
 
-    // ── Select a text element ──
+    // ── Capture default styles before any changes ──
+    const defaults = {};
+    document.querySelectorAll('.text-el').forEach(el => {
+      const cs = getComputedStyle(el);
+      defaults[el.dataset.id] = {
+        fontSize:      cs.fontSize,
+        fontWeight:    cs.fontWeight,
+        lineHeight:    cs.lineHeight,
+        letterSpacing: cs.letterSpacing,
+        fontFamily:    cs.fontFamily,
+        textAlign:     cs.textAlign,
+        transform:     '',
+      };
+    });
+
+    // ── State ──
+    let active = null;
+
+    const $ = id => document.getElementById(id);
+    const els = {
+      panel:      $('panel'),
+      dial:       $('dial'),
+      dragHandle: $('dragHandle'),
+      minBtn:     $('minimizeBtn'),
+      badge:      $('selectedBadge'),
+      noSel:      $('noSel'),
+      controls:   $('controls'),
+      slSize:     $('slSize'),   valSize:   $('valSize'),
+      slWeight:   $('slWeight'), valWeight: $('valWeight'),
+      slLH:       $('slLH'),     valLH:     $('valLH'),
+      slLS:       $('slLS'),     valLS:     $('valLS'),
+      fontSelect: $('fontSelect'),
+      inpX:       $('inpX'),     inpY:      $('inpY'),
+      resetBtn:   $('resetBtn'),
+      cssOut:     $('cssOut'),
+      copyBtn:    $('copyBtn'),
+    };
+
+    // ══════════════════════════════
+    // PANEL DRAG
+    // ══════════════════════════════
+    let dragging = false, ox = 0, oy = 0, px = 0, py = 0;
+
+    function initPanelPos() {
+      const r = els.panel.getBoundingClientRect();
+      px = r.left; py = r.top;
+      els.panel.style.right = 'auto';
+      els.panel.style.bottom = 'auto';
+      els.panel.style.left = px + 'px';
+      els.panel.style.top  = py + 'px';
+    }
+
+    els.dragHandle.addEventListener('pointerdown', e => {
+      if (e.target === els.minBtn || els.minBtn.contains(e.target)) return;
+      if (!px && !py) initPanelPos();
+      dragging = true;
+      const r = els.panel.getBoundingClientRect();
+      ox = e.clientX - r.left;
+      oy = e.clientY - r.top;
+      els.dragHandle.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    document.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      px = e.clientX - ox;
+      py = e.clientY - oy;
+      // Clamp to viewport
+      px = Math.max(0, Math.min(window.innerWidth  - els.panel.offsetWidth,  px));
+      py = Math.max(0, Math.min(window.innerHeight - els.panel.offsetHeight, py));
+      els.panel.style.left = px + 'px';
+      els.panel.style.top  = py + 'px';
+    });
+
+    document.addEventListener('pointerup', () => { dragging = false; });
+
+    // ── Also make the dial draggable ──
+    let dialDragging = false, dox = 0, doy = 0, dpx = 0, dpy = 0, dialMoved = false;
+
+    els.dial.addEventListener('pointerdown', e => {
+      dialDragging = true; dialMoved = false;
+      const r = els.dial.getBoundingClientRect();
+      dox = e.clientX - r.left;
+      doy = e.clientY - r.top;
+      dpx = r.left; dpy = r.top;
+      els.dial.style.right = 'auto'; els.dial.style.bottom = 'auto';
+      els.dial.style.left = dpx + 'px'; els.dial.style.top = dpy + 'px';
+      els.dial.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    document.addEventListener('pointermove', e => {
+      if (!dialDragging) return;
+      const nx = e.clientX - dox;
+      const ny = e.clientY - doy;
+      if (Math.abs(nx - dpx) > 3 || Math.abs(ny - dpy) > 3) dialMoved = true;
+      dpx = Math.max(0, Math.min(window.innerWidth  - 40, nx));
+      dpy = Math.max(0, Math.min(window.innerHeight - 40, ny));
+      els.dial.style.left = dpx + 'px';
+      els.dial.style.top  = dpy + 'px';
+    });
+
+    document.addEventListener('pointerup', () => { dialDragging = false; });
+
+    // ══════════════════════════════
+    // MINIMIZE / EXPAND
+    // ══════════════════════════════
+    els.minBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      // Place dial at panel position
+      const r = els.panel.getBoundingClientRect();
+      els.dial.style.right  = 'auto'; els.dial.style.bottom = 'auto';
+      els.dial.style.left   = (r.left + els.panel.offsetWidth / 2 - 20) + 'px';
+      els.dial.style.top    = (r.top  + els.panel.offsetHeight / 2 - 20) + 'px';
+      dpx = parseFloat(els.dial.style.left);
+      dpy = parseFloat(els.dial.style.top);
+      els.panel.style.display = 'none';
+      els.dial.style.display  = 'flex';
+    });
+
+    els.dial.addEventListener('click', () => {
+      if (dialMoved) return; // was a drag, not a click
+      // Reopen panel at dial position
+      els.panel.style.display = 'block';
+      px = Math.max(0, Math.min(window.innerWidth  - els.panel.offsetWidth,  dpx - els.panel.offsetWidth / 2  + 20));
+      py = Math.max(0, Math.min(window.innerHeight - els.panel.offsetHeight, dpy - els.panel.offsetHeight / 2 + 20));
+      els.panel.style.left = px + 'px';
+      els.panel.style.top  = py + 'px';
+      els.panel.style.right  = 'auto';
+      els.panel.style.bottom = 'auto';
+      els.dial.style.display = 'none';
+    });
+
+    // ══════════════════════════════
+    // SELECT ELEMENT
+    // ══════════════════════════════
     document.querySelectorAll('.text-el').forEach(el => {
       el.addEventListener('mousedown', e => {
         if (active) active.classList.remove('active');
         active = el;
         el.classList.add('active');
-        syncFromElement(el);
-        els.noSel.style.display = 'none';
-        els.body.style.display = 'block';
-        els.tag.textContent = el.dataset.id;
+        syncFrom(el);
+        els.noSel.style.display     = 'none';
+        els.controls.style.display  = 'block';
+        els.badge.textContent = el.dataset.id;
       });
     });
 
-    // Click elsewhere deselects
     document.querySelector('.preview').addEventListener('mousedown', e => {
       if (!e.target.closest('.text-el')) {
         if (active) active.classList.remove('active');
         active = null;
-        els.noSel.style.display = '';
-        els.body.style.display = 'none';
-        els.tag.textContent = '—';
+        els.noSel.style.display    = '';
+        els.controls.style.display = 'none';
+        els.badge.textContent = '—';
       }
     });
 
-    // ── Read computed styles from the element ──
-    function syncFromElement(el) {
+    // ══════════════════════════════
+    // SYNC CONTROLS FROM ELEMENT
+    // ══════════════════════════════
+    function syncFrom(el) {
       const cs = getComputedStyle(el);
+      const fsz = parseFloat(cs.fontSize);
 
-      const size = parseFloat(cs.fontSize);
-      els.slSize.value = size;
-      els.valSize.textContent = Math.round(size) + 'px';
+      els.slSize.value = fsz;
+      els.valSize.textContent = Math.round(fsz) + 'px';
 
-      const weight = parseInt(cs.fontWeight) || 400;
-      els.slWeight.value = weight;
-      els.valWeight.textContent = weight;
+      const fw = parseInt(cs.fontWeight) || 400;
+      els.slWeight.value = fw;
+      els.valWeight.textContent = fw;
 
-      const lh = parseFloat(cs.lineHeight) / parseFloat(cs.fontSize);
-      const lhVal = isNaN(lh) ? 1.4 : Math.round(lh * 100) / 100;
-      els.slLH.value = lhVal;
-      els.valLH.textContent = lhVal.toFixed(2);
+      const lhPx = parseFloat(cs.lineHeight);
+      const lh = isNaN(lhPx / fsz) ? 1.4 : Math.round((lhPx / fsz) * 100) / 100;
+      els.slLH.value = lh;
+      els.valLH.textContent = lh.toFixed(2);
 
-      const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing) / parseFloat(cs.fontSize);
-      const lsVal = Math.round(ls * 1000) / 1000;
-      els.slLS.value = lsVal;
-      els.valLS.textContent = lsVal.toFixed(3) + 'em';
+      const lsPx = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
+      const ls = Math.round((lsPx / fsz) * 1000) / 1000;
+      els.slLS.value = ls;
+      els.valLS.textContent = ls.toFixed(3) + 'em';
 
-      // Position offset from transform
-      const matrix = new DOMMatrix(cs.transform);
-      els.inpX.value = Math.round(matrix.m41);
-      els.inpY.value = Math.round(matrix.m42);
+      // Font family — match select option
+      const fam = cs.fontFamily;
+      let matched = false;
+      for (const opt of els.fontSelect.options) {
+        const key = opt.value.replace(/'/g, '').split(',')[0].trim();
+        if (fam.replace(/"/g, '').replace(/'/g, '').includes(key)) {
+          els.fontSelect.value = opt.value;
+          matched = true; break;
+        }
+      }
+      if (!matched) els.fontSelect.selectedIndex = 0;
 
-      // Family buttons
-      const family = cs.fontFamily;
-      document.querySelectorAll('.family-btn').forEach(btn => {
-        btn.classList.toggle('active', family.includes(btn.dataset.family.split(',')[0].replace(/'/g,'')));
-      });
+      // Align
+      document.querySelectorAll('.align-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.align === cs.textAlign));
 
-      // Align buttons
-      const align = cs.textAlign;
-      document.querySelectorAll('.align-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.align === align);
-      });
+      // Position offset
+      const mat = new DOMMatrix(cs.transform);
+      els.inpX.value = Math.round(mat.m41);
+      els.inpY.value = Math.round(mat.m42);
 
       updateCSS();
     }
 
-    // ── Apply a style property to the active element ──
+    // ══════════════════════════════
+    // APPLY STYLE
+    // ══════════════════════════════
     function apply(prop, value) {
       if (!active) return;
       active.style[prop] = value;
       updateCSS();
     }
 
-    // ── Sliders ──
     els.slSize.addEventListener('input', () => {
       const v = parseFloat(els.slSize.value);
       els.valSize.textContent = Math.round(v) + 'px';
@@ -590,25 +745,18 @@
       apply('letterSpacing', v + 'em');
     });
 
-    // ── Position ──
-    function applyTransform() {
+    els.fontSelect.addEventListener('change', () => {
+      apply('fontFamily', els.fontSelect.value);
+    });
+
+    function applyXY() {
       const x = parseFloat(els.inpX.value) || 0;
       const y = parseFloat(els.inpY.value) || 0;
       apply('transform', `translate(${x}px, ${y}px)`);
     }
-    els.inpX.addEventListener('input', applyTransform);
-    els.inpY.addEventListener('input', applyTransform);
+    els.inpX.addEventListener('input', applyXY);
+    els.inpY.addEventListener('input', applyXY);
 
-    // ── Family ──
-    document.querySelectorAll('.family-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.family-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        apply('fontFamily', btn.dataset.family);
-      });
-    });
-
-    // ── Align ──
     document.querySelectorAll('.align-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.align-btn').forEach(b => b.classList.remove('active'));
@@ -617,28 +765,42 @@
       });
     });
 
-    // ── CSS output ──
+    // ══════════════════════════════
+    // RESET
+    // ══════════════════════════════
+    els.resetBtn.addEventListener('click', () => {
+      if (!active) return;
+      const def = defaults[active.dataset.id];
+      if (!def) return;
+      active.style.fontSize      = def.fontSize;
+      active.style.fontWeight    = def.fontWeight;
+      active.style.lineHeight    = def.lineHeight;
+      active.style.letterSpacing = def.letterSpacing;
+      active.style.fontFamily    = def.fontFamily;
+      active.style.textAlign     = def.textAlign;
+      active.style.transform     = def.transform;
+      syncFrom(active);
+    });
+
+    // ══════════════════════════════
+    // CSS OUTPUT
+    // ══════════════════════════════
     function updateCSS() {
       if (!active) return;
-      const cs = getComputedStyle(active);
       const s = active.style;
-
       const lines = [];
-
-      if (s.fontFamily)    lines.push(['font-family',     s.fontFamily]);
-      if (s.fontSize)      lines.push(['font-size',       s.fontSize]);
-      if (s.fontWeight)    lines.push(['font-weight',     s.fontWeight]);
-      if (s.lineHeight)    lines.push(['line-height',     s.lineHeight]);
-      if (s.letterSpacing) lines.push(['letter-spacing',  s.letterSpacing]);
-      if (s.textAlign)     lines.push(['text-align',      s.textAlign]);
+      if (s.fontFamily)    lines.push(['font-family',    s.fontFamily]);
+      if (s.fontSize)      lines.push(['font-size',      s.fontSize]);
+      if (s.fontWeight)    lines.push(['font-weight',    s.fontWeight]);
+      if (s.lineHeight)    lines.push(['line-height',    s.lineHeight]);
+      if (s.letterSpacing) lines.push(['letter-spacing', s.letterSpacing]);
+      if (s.textAlign)     lines.push(['text-align',     s.textAlign]);
       if (s.transform && s.transform !== 'none') lines.push(['transform', s.transform]);
-
       els.cssOut.innerHTML = lines
-        .map(([p, v]) => `<span class="prop">${p}</span>: <span class="val">${v}</span>;`)
+        .map(([p, v]) => `${p}: <span class="val">${v}</span>;`)
         .join('\n');
     }
 
-    // ── Copy ──
     els.copyBtn.addEventListener('click', () => {
       if (!active) return;
       const s = active.style;
@@ -650,14 +812,10 @@
       if (s.letterSpacing) lines.push(`letter-spacing: ${s.letterSpacing};`);
       if (s.textAlign)     lines.push(`text-align: ${s.textAlign};`);
       if (s.transform && s.transform !== 'none') lines.push(`transform: ${s.transform};`);
-
       navigator.clipboard.writeText(lines.join('\n')).then(() => {
         els.copyBtn.textContent = 'Copied!';
         els.copyBtn.classList.add('copied');
-        setTimeout(() => {
-          els.copyBtn.textContent = 'Copy';
-          els.copyBtn.classList.remove('copied');
-        }, 1500);
+        setTimeout(() => { els.copyBtn.textContent = 'Copy'; els.copyBtn.classList.remove('copied'); }, 1500);
       });
     });
   </script>
