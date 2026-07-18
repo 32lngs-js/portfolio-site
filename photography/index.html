@@ -90,11 +90,11 @@
     body.dark .header h1 { color: #e8e8e8; }
     body.dark .header p  { color: #555; }
 
-    /* ─── Container matches Dialkit: width = cardW + 180, height = cardH + 200 ─── */
+    /* ─── Container: width = cardW + 180 for back card, height = cardH + shadow bleed ─── */
     .photostack {
       position: relative;
       width: 660px;   /* 480 + 180 */
-      height: 860px;  /* 660 + 200 */
+      height: 680px;  /* 660 + 20 shadow bleed */
     }
 
     /* ─── Shadow layer: blurred duplicates, no pointer events ─── */
@@ -194,16 +194,6 @@
     /* hover / tap states on front only */
     .photo-card.pos-front:hover  { transform: scale(1.01); }
     .photo-card.pos-front:active { transform: scale(0.99); }
-
-    /* ─── hint ─── */
-    .hint {
-      font-size: 13px;
-      color: #bbb;
-      letter-spacing: 0.03em;
-      position: absolute;
-      bottom: 100px;
-      left: 0;
-    }
   </style>
 </head>
 <body>
@@ -225,7 +215,6 @@
       <!-- cards injected by JS -->
     </div>
 
-    <span class="hint">click to advance</span>
   </div>
 
   <!-- Footer with theme toggle, left-adjusted -->
