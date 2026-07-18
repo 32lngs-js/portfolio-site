@@ -8,6 +8,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Space+Grotesk:wght@300..700&family=DM+Sans:wght@300..700&family=Plus+Jakarta+Sans:wght@300..800&family=Geist+Mono:wght@400;500&family=Fragment+Mono&family=Outfit:wght@300..700&display=swap" rel="stylesheet">
   <style>
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-200.otf') format('opentype'); font-weight: 200; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-300.otf') format('opentype'); font-weight: 300; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-400.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-500.otf') format('opentype'); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-600.otf') format('opentype'); font-weight: 600; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-700.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-800.otf') format('opentype'); font-weight: 800; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Söhne'; src: url('fonts/sohne/sohne-900.otf') format('opentype'); font-weight: 900; font-style: normal; font-display: swap; }
+  </style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -467,6 +476,7 @@
         <div class="row">
           <select class="row-select" id="fontSelect">
             <optgroup label="Sans">
+              <option value="'Söhne', sans-serif">Söhne</option>
               <option value="'Inter', sans-serif">Inter</option>
               <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
               <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
