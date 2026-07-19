@@ -185,15 +185,82 @@
     .photo-card.pos-exiting  { transform: translateX(-480px) scale(1); z-index: 3; opacity: 0; }
     .shadow-card.pos-exiting { transform: translateX(-480px) scale(1); z-index: 3; opacity: 0; }
 
+    /* Retreat: new front enters from the left */
+    .photo-card.pos-left-entering  { transform: translateX(-480px) scale(1); z-index: 1; opacity: 0; cursor: default; }
+    .shadow-card.pos-left-entering { transform: translateX(-480px) scale(1); opacity: 0; }
+
+    /* Retreat: old back exits further to the right */
+    .photo-card.pos-right-exiting  { transform: translateX(480px) scale(0.5); z-index: 0; opacity: 0; cursor: default; }
+    .shadow-card.pos-right-exiting { transform: translateX(480px) scale(0.5); opacity: 0; }
+
     /* ─── Overlay opacity controlled via CSS variable ─── */
     .photo-card.pos-front .overlay  { opacity: 0; transition: opacity 0.5s ease; }
     .photo-card.pos-back .overlay   { opacity: 0.6; transition: opacity 0.5s ease; }
-    .photo-card.pos-entering .overlay { opacity: 0.6; }
-    .photo-card.pos-exiting .overlay  { opacity: 0; }
+    .photo-card.pos-entering .overlay       { opacity: 0.6; }
+    .photo-card.pos-exiting .overlay        { opacity: 0; }
+    .photo-card.pos-left-entering .overlay  { opacity: 0; }
+    .photo-card.pos-right-exiting .overlay  { opacity: 0.6; }
 
     /* hover / tap states on front only */
     .photo-card.pos-front:hover  { transform: scale(1.01); }
     .photo-card.pos-front:active { transform: scale(0.99); }
+
+    /* ─── Grid view ─── */
+    .photo-grid {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      width: min(960px, calc(100vw - 80px));
+    }
+
+    .photo-grid.active { display: grid; }
+
+    .grid-cell {
+      aspect-ratio: 480 / 660;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .grid-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .grid-cell:hover img { transform: scale(1.04); }
+    .grid-cell:active img { transform: scale(1.01); }
+
+    /* ─── View toggle button ─── */
+    .view-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #aaa;
+      border-radius: 6px;
+      padding: 0;
+      margin-left: 4px;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .view-toggle:hover {
+      color: #555;
+      background: rgba(0,0,0,0.06);
+    }
+
+    body.dark .view-toggle { color: #666; }
+    body.dark .view-toggle:hover {
+      color: #aaa;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .view-toggle svg { display: block; }
   </style>
 </head>
 <body>
@@ -217,8 +284,28 @@
 
   </div>
 
+  <!-- Grid view (alternative layout) -->
+  <div class="photo-grid" id="photoGrid">
+    <!-- cells injected by JS -->
+  </div>
+
   <!-- Footer with theme toggle, left-adjusted -->
   <footer class="site-footer">
+    <button class="view-toggle" id="viewToggle" aria-label="Toggle gallery view">
+      <!-- Grid icon (shown in stack mode) -->
+      <svg id="iconGrid" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="1" width="6" height="6" rx="0.75"/>
+        <rect x="9" y="1" width="6" height="6" rx="0.75"/>
+        <rect x="1" y="9" width="6" height="6" rx="0.75"/>
+        <rect x="9" y="9" width="6" height="6" rx="0.75"/>
+      </svg>
+      <!-- Stack icon (shown in grid mode) -->
+      <svg id="iconStack" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <rect x="2" y="5" width="10" height="9" rx="0.75"/>
+        <path d="M4 5V3.5A.5.5 0 0 1 4.5 3h7a.5.5 0 0 1 .5.5V5"/>
+        <path d="M5 3V2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1"/>
+      </svg>
+    </button>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
       <!-- Moon icon (shown in light mode) -->
       <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -300,7 +387,7 @@
       const { card: frontCard, shadow: frontShadow } = makeCard(photoAt(head), 'front');
       const { card: backCard,  shadow: backShadow  } = makeCard(photoAt(head + 1), 'back');
 
-      frontCard.addEventListener('click', advance);
+      frontCard.addEventListener('click', advance, { once: true });
 
       cardLayer.appendChild(frontCard);
       cardLayer.appendChild(backCard);
@@ -348,7 +435,108 @@
       }, { once: true });
     }
 
+    function retreat() {
+      if (animating) return;
+      animating = true;
+      head--;
+
+      const [frontCard, backCard]     = cardLayer.querySelectorAll('.photo-card');
+      const [frontShadow, backShadow] = shadowLayer.querySelectorAll('.shadow-card');
+
+      // 1. Create new front card (photo before current front) starting off-screen left
+      const { card: newFrontCard, shadow: newFrontShadow } = makeCard(photoAt(head), 'left-entering');
+      cardLayer.insertBefore(newFrontCard, frontCard);
+      shadowLayer.insertBefore(newFrontShadow, frontShadow);
+
+      // Force layout so the initial pos-left-entering transform applies before animating
+      newFrontCard.getBoundingClientRect();
+      newFrontShadow.getBoundingClientRect();
+
+      // 2. Exit old back card further to the right
+      backCard.classList.replace('pos-back', 'pos-right-exiting');
+      backShadow.classList.replace('pos-back', 'pos-right-exiting');
+
+      // 3. Move current front to back
+      frontCard.classList.replace('pos-front', 'pos-back');
+      frontCard.addEventListener('click', advance, { once: true });
+      frontShadow.classList.replace('pos-front', 'pos-back');
+
+      // 4. Animate new front in from the left
+      requestAnimationFrame(() => {
+        newFrontCard.classList.replace('pos-left-entering', 'pos-front');
+        newFrontCard.addEventListener('click', advance, { once: true });
+        newFrontShadow.classList.replace('pos-left-entering', 'pos-front');
+      });
+
+      // 5. Remove old back card after its exit transition
+      backCard.addEventListener('transitionend', () => {
+        backCard.remove();
+        backShadow.remove();
+        animating = false;
+      }, { once: true });
+    }
+
+    // ─── Grid view ───
+    const photoGrid = document.getElementById('photoGrid');
+    const photostack = document.getElementById('photostack');
+
+    function buildGrid() {
+      photos.forEach((photo, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = '';
+        cell.appendChild(img);
+        cell.addEventListener('click', () => jumpTo(i));
+        photoGrid.appendChild(cell);
+      });
+    }
+
+    function jumpTo(index) {
+      cardLayer.innerHTML = '';
+      shadowLayer.innerHTML = '';
+      head = index;
+      animating = false;
+      init();
+      setView('stack');
+    }
+
+    let currentView = 'stack';
+
+    function setView(view) {
+      currentView = view;
+      if (view === 'grid') {
+        photostack.style.display = 'none';
+        photoGrid.classList.add('active');
+        iconGrid.style.display = 'none';
+        iconStack.style.display = 'block';
+      } else {
+        photostack.style.display = '';
+        photoGrid.classList.remove('active');
+        iconGrid.style.display = 'block';
+        iconStack.style.display = 'none';
+      }
+    }
+
+    buildGrid();
     init();
+
+    document.addEventListener('keydown', (e) => {
+      if (currentView === 'stack') {
+        if (e.key === 'ArrowRight') advance();
+        if (e.key === 'ArrowLeft')  retreat();
+      }
+    });
+
+    // View toggle
+    const viewToggle = document.getElementById('viewToggle');
+    const iconGrid   = document.getElementById('iconGrid');
+    const iconStack  = document.getElementById('iconStack');
+
+    viewToggle.addEventListener('click', () => {
+      setView(currentView === 'stack' ? 'grid' : 'stack');
+    });
 
     // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
