@@ -205,34 +205,110 @@
     .photo-card.pos-front:hover  { transform: scale(1.01); }
     .photo-card.pos-front:active { transform: scale(0.99); }
 
-    /* ─── Grid view ─── */
-    .photo-grid {
+    /* ─── Masonry view (natural heights) ─── */
+    .photo-masonry {
       display: none;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
+      column-count: 3;
+      column-gap: 16px;
       width: min(960px, calc(100vw - 80px));
     }
 
-    .photo-grid.active { display: grid; }
+    .photo-masonry.active { display: block; }
 
-    .grid-cell {
-      aspect-ratio: 480 / 660;
-      overflow: hidden;
+    .masonry-cell {
+      break-inside: avoid;
+      margin-bottom: 16px;
       cursor: pointer;
+      overflow: hidden;
     }
 
-    .grid-cell img {
+    .masonry-cell img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
       display: block;
       transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    .grid-cell:hover img { transform: scale(1.04); }
-    .grid-cell:active img { transform: scale(1.01); }
+    .masonry-cell:hover img { transform: scale(1.03); }
+    .masonry-cell:active img { transform: scale(1.01); }
 
-    /* ─── View toggle button ─── */
+    /* ─── Justified view (CSS masonry grid) ─── */
+    .photo-justified {
+      display: none;
+      width: min(960px, calc(100vw - 80px));
+    }
+
+    .photo-justified.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+      grid-auto-rows: 8px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .justified-card {
+      min-width: 0;
+      grid-row-end: span 40;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .justified-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .justified-card:hover img { transform: scale(1.015); }
+
+    /* ─── Editorial view (flex hero/pair layout) ─── */
+    .photo-editorial {
+      display: none;
+      width: min(960px, calc(100vw - 80px));
+    }
+
+    .photo-editorial.active {
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: clamp(44px, 6vw, 80px);
+    }
+
+    .editorial-card {
+      width: var(--slot, 50%);
+      min-width: 0;
+      display: flex;
+      justify-content: var(--align, center);
+      padding: 0 8px;
+    }
+
+    .editorial-frame {
+      width: var(--img-w, 80%);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .editorial-card:not(.is-large).is-portrait .editorial-frame {
+      max-width: 50%;
+    }
+
+    .editorial-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+      opacity: 0;
+      transform: scale(0.992);
+      transition: opacity 420ms ease, transform 420ms ease;
+    }
+
+    .editorial-frame img.is-loaded {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .editorial-frame:hover img { transform: scale(1.012); }
+
+    /* ─── View toggle buttons ─── */
     .view-toggle {
       display: flex;
       align-items: center;
@@ -242,23 +318,19 @@
       border: none;
       background: none;
       cursor: pointer;
-      color: #aaa;
+      color: #ccc;
       border-radius: 6px;
       padding: 0;
-      margin-left: 4px;
+      margin-left: 2px;
       transition: color 0.2s ease, background 0.2s ease;
     }
 
-    .view-toggle:hover {
-      color: #555;
-      background: rgba(0,0,0,0.06);
-    }
+    .view-toggle:hover { color: #555; background: rgba(0,0,0,0.06); }
+    .view-toggle.active { color: #1a1a1a; }
 
-    body.dark .view-toggle { color: #666; }
-    body.dark .view-toggle:hover {
-      color: #aaa;
-      background: rgba(255,255,255,0.06);
-    }
+    body.dark .view-toggle { color: #444; }
+    body.dark .view-toggle:hover { color: #aaa; background: rgba(255,255,255,0.06); }
+    body.dark .view-toggle.active { color: #e8e8e8; }
 
     .view-toggle svg { display: block; }
   </style>
@@ -284,26 +356,54 @@
 
   </div>
 
-  <!-- Grid view (alternative layout) -->
-  <div class="photo-grid" id="photoGrid">
+  <!-- Masonry view (natural heights) -->
+  <div class="photo-masonry" id="photoMasonry">
     <!-- cells injected by JS -->
+  </div>
+
+  <!-- Justified view (masonry grid) -->
+  <div class="photo-justified" id="photoJustified">
+    <!-- cells injected by JS -->
+  </div>
+
+  <!-- Editorial view (hero/pair flex layout) -->
+  <div class="photo-editorial" id="photoEditorial">
+    <!-- cards injected by JS -->
   </div>
 
   <!-- Footer with theme toggle, left-adjusted -->
   <footer class="site-footer">
-    <button class="view-toggle" id="viewToggle" aria-label="Toggle gallery view">
-      <!-- Grid icon (shown in stack mode) -->
-      <svg id="iconGrid" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="1" y="1" width="6" height="6" rx="0.75"/>
-        <rect x="9" y="1" width="6" height="6" rx="0.75"/>
-        <rect x="1" y="9" width="6" height="6" rx="0.75"/>
-        <rect x="9" y="9" width="6" height="6" rx="0.75"/>
-      </svg>
-      <!-- Stack icon (shown in grid mode) -->
-      <svg id="iconStack" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+    <!-- Stack view -->
+    <button class="view-toggle active" id="btnStack" aria-label="Stack view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="5" width="10" height="9" rx="0.75"/>
         <path d="M4 5V3.5A.5.5 0 0 1 4.5 3h7a.5.5 0 0 1 .5.5V5"/>
         <path d="M5 3V2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v1"/>
+      </svg>
+    </button>
+    <!-- Masonry view -->
+    <button class="view-toggle" id="btnMasonry" aria-label="Masonry view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="2" width="4" height="12" rx="0.75"/>
+        <rect x="6" y="5" width="4" height="9" rx="0.75"/>
+        <rect x="11" y="3" width="4" height="7" rx="0.75"/>
+      </svg>
+    </button>
+    <!-- Justified view -->
+    <button class="view-toggle" id="btnJustified" aria-label="Justified view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="1" width="8" height="6" rx="0.75"/>
+        <rect x="10" y="1" width="5" height="6" rx="0.75"/>
+        <rect x="1" y="9" width="5" height="6" rx="0.75"/>
+        <rect x="7" y="9" width="8" height="6" rx="0.75"/>
+      </svg>
+    </button>
+    <!-- Editorial view -->
+    <button class="view-toggle" id="btnEditorial" aria-label="Editorial view">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="1" width="14" height="7" rx="0.75"/>
+        <rect x="1" y="10" width="6" height="5" rx="0.75"/>
+        <rect x="9" y="10" width="6" height="5" rx="0.75"/>
       </svg>
     </button>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -476,20 +576,105 @@
       }, { once: true });
     }
 
-    // ─── Grid view ───
-    const photoGrid = document.getElementById('photoGrid');
-    const photostack = document.getElementById('photostack');
+    // ─── Views ───
+    const photoMasonry   = document.getElementById('photoMasonry');
+    const photoJustified = document.getElementById('photoJustified');
+    const photoEditorial = document.getElementById('photoEditorial');
+    const photostack     = document.getElementById('photostack');
 
-    function buildGrid() {
+    function buildMasonry() {
       photos.forEach((photo, i) => {
         const cell = document.createElement('div');
-        cell.className = 'grid-cell';
+        cell.className = 'masonry-cell';
         const img = document.createElement('img');
         img.src = photo.src;
         img.alt = '';
         cell.appendChild(img);
         cell.addEventListener('click', () => jumpTo(i));
-        photoGrid.appendChild(cell);
+        photoMasonry.appendChild(cell);
+      });
+    }
+
+    function buildJustified() {
+      photos.forEach((photo, i) => {
+        const card = document.createElement('div');
+        card.className = 'justified-card';
+
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = '';
+        img.loading = i < 4 ? 'eager' : 'lazy';
+        img.addEventListener('load', () => resizeJustifiedCard(card));
+
+        card.appendChild(img);
+        card.addEventListener('click', () => jumpTo(i));
+        photoJustified.appendChild(card);
+      });
+    }
+
+    function resizeJustifiedCard(card) {
+      const styles = window.getComputedStyle(photoJustified);
+      const rowH   = parseFloat(styles.getPropertyValue('grid-auto-rows'));
+      const rowGap = parseFloat(styles.getPropertyValue('row-gap'));
+      if (!rowH) return;
+      const h = card.getBoundingClientRect().height;
+      if (!h) return;
+      card.style.gridRowEnd = `span ${Math.ceil((h + rowGap) / (rowH + rowGap))}`;
+    }
+
+    function resizeAllJustifiedCards() {
+      requestAnimationFrame(() => {
+        photoJustified.querySelectorAll('.justified-card').forEach(resizeJustifiedCard);
+      });
+    }
+
+    function buildEditorial() {
+      const PATTERNS = [
+        // pair → pair → hero
+        [{ s:50, i:70, a:'flex-end'   }, { s:50, i:100, a:'flex-start' },
+         { s:50, i:100, a:'flex-end'  }, { s:50, i:70,  a:'flex-start' },
+         { s:100, i:70, a:'center', large:true }],
+        // hero → pair → pair
+        [{ s:100, i:68, a:'center', large:true },
+         { s:50, i:70, a:'flex-end'   }, { s:50, i:100, a:'flex-start' },
+         { s:50, i:100, a:'flex-end'  }, { s:50, i:70,  a:'flex-start' }],
+        // pair → hero → pair
+        [{ s:50, i:100, a:'flex-end'  }, { s:50, i:70, a:'flex-start' },
+         { s:100, i:72, a:'center', large:true },
+         { s:50, i:70, a:'flex-end'   }, { s:50, i:100, a:'flex-start' }],
+        // pair → hero (offset) → pair
+        [{ s:50, i:70, a:'flex-end'   }, { s:50, i:100, a:'flex-start' },
+         { s:100, i:66, a:'center', large:true },
+         { s:50, i:100, a:'flex-end'  }, { s:50, i:70,  a:'flex-start' }],
+      ];
+      const GROUP = 5;
+
+      photos.forEach((photo, i) => {
+        const layout = PATTERNS[Math.floor(i / GROUP) % PATTERNS.length][i % GROUP];
+
+        const card = document.createElement('div');
+        card.className = 'editorial-card';
+        if (layout.large) card.classList.add('is-large');
+        card.style.setProperty('--slot', `${layout.s}%`);
+        card.style.setProperty('--img-w', `${layout.i}%`);
+        card.style.setProperty('--align', layout.a);
+
+        const frame = document.createElement('div');
+        frame.className = 'editorial-frame';
+
+        const img = document.createElement('img');
+        img.src = photo.src;
+        img.alt = '';
+        img.loading = i < 4 ? 'eager' : 'lazy';
+        img.addEventListener('load', () => {
+          img.classList.add('is-loaded');
+          if (img.naturalHeight > img.naturalWidth) card.classList.add('is-portrait');
+        });
+
+        frame.appendChild(img);
+        card.appendChild(frame);
+        card.addEventListener('click', () => jumpTo(i));
+        photoEditorial.appendChild(card);
       });
     }
 
@@ -502,24 +687,30 @@
       setView('stack');
     }
 
+    // View buttons
+    const btnStack     = document.getElementById('btnStack');
+    const btnMasonry   = document.getElementById('btnMasonry');
+    const btnJustified = document.getElementById('btnJustified');
+    const btnEditorial = document.getElementById('btnEditorial');
+
     let currentView = 'stack';
 
     function setView(view) {
       currentView = view;
-      if (view === 'grid') {
-        photostack.style.display = 'none';
-        photoGrid.classList.add('active');
-        iconGrid.style.display = 'none';
-        iconStack.style.display = 'block';
-      } else {
-        photostack.style.display = '';
-        photoGrid.classList.remove('active');
-        iconGrid.style.display = 'block';
-        iconStack.style.display = 'none';
-      }
+      photostack.style.display      = view === 'stack'     ? '' : 'none';
+      photoMasonry.classList.toggle('active',    view === 'masonry');
+      photoJustified.classList.toggle('active',  view === 'justified');
+      photoEditorial.classList.toggle('active',  view === 'editorial');
+      btnStack.classList.toggle('active',     view === 'stack');
+      btnMasonry.classList.toggle('active',   view === 'masonry');
+      btnJustified.classList.toggle('active', view === 'justified');
+      btnEditorial.classList.toggle('active', view === 'editorial');
+      if (view === 'justified') resizeAllJustifiedCards();
     }
 
-    buildGrid();
+    buildMasonry();
+    buildJustified();
+    buildEditorial();
     init();
 
     document.addEventListener('keydown', (e) => {
@@ -529,14 +720,18 @@
       }
     });
 
-    // View toggle
-    const viewToggle = document.getElementById('viewToggle');
-    const iconGrid   = document.getElementById('iconGrid');
-    const iconStack  = document.getElementById('iconStack');
+    btnStack.addEventListener('click',     () => setView('stack'));
+    btnMasonry.addEventListener('click',   () => setView('masonry'));
+    btnJustified.addEventListener('click', () => setView('justified'));
+    btnEditorial.addEventListener('click', () => setView('editorial'));
 
-    viewToggle.addEventListener('click', () => {
-      setView(currentView === 'stack' ? 'grid' : 'stack');
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      if (currentView !== 'justified') return;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resizeAllJustifiedCards, 120);
     });
+
 
     // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
