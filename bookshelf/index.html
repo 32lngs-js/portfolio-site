@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookshelf — grizz.fyi replica</title>
+<style>
+  :root { --shelf-h: 340px; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #fff;
+    color: #111;
+    font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 80px 40px 120px; }
+  .label { font-size: 20px; letter-spacing: .02em; margin: 0 0 40px; font-weight: 600; }
+  .hint  { font-size: 13px; color: #999; margin: 28px 0 0; }
+
+  .shelf {
+    display: flex;
+    align-items: flex-end;
+    min-height: var(--shelf-h);
+    user-select: none;
+  }
+
+  /* Each book gets its OWN perspective, centered on itself (grizz does this) — so every
+     book is viewed head-on and the depth reads as subtle, near-orthographic. --persp set in JS. */
+  .book {
+    position: relative;
+    height: var(--shelf-h);
+    flex: 0 0 auto;          /* width is set per-frame in JS = projected width */
+    cursor: pointer;
+    perspective: var(--persp, 5000px);
+    perspective-origin: 50% 50%;
+  }
+
+  /* the hinge: whole book rotates around its left (spine) edge */
+  .book-inner {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    will-change: transform;
+  }
+
+  .book-cover, .book-spine {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    display: block;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-origin: left center;
+  }
+  /* the front face sits forward by the book's thickness (translateZ set in JS) */
+  .book-cover {
+    border-radius: 1px 2px 2px 1px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.10);
+  }
+  /* the spine is folded back 90deg to become the left face */
+  .book-spine { border-radius: 1px 0 0 1px; }
+
+  /* soft ground shadow to seat the books */
+  .book::after {
+    content: "";
+    position: absolute;
+    left: 4%; right: 4%;
+    bottom: -10px; height: 14px;
+    background: radial-gradient(50% 100% at 50% 0%, rgba(0,0,0,.18), rgba(0,0,0,0) 70%);
+    opacity: var(--shadow, .25);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 class="label">bookshelf</h1>
+    <div class="shelf" id="shelf" aria-label="Bookshelf"></div>
+    <p class="hint">Click a book to open it. Built from two flat images per title (cover + spine) assembled with CSS 3D transforms. No WebGL, no model.</p>
+  </div>
+
+<script>
+(() => {
+  const OPEN_MS = 650;           // flip duration (grizz: L=650)
+  const PERSP_RATIO = 5000 / 260;// grizz uses perspective:5000px at a 260px book height
+  const CLOSED_Y = 90;           // rotateY when closed (spine facing you); manga would be -90
+  const PX_PER_CM = 15;          // real-world scale: how many px per cm of real book height
+
+  // The shelf. `h` = real book HEIGHT in cm (drives on-screen size). Width & thickness
+  // still come from each image's aspect ratio, so one real number per book is enough.
+  // Heights are per-edition estimates from standard trim sizes; measure to refine.
+  const TITLES = [
+    { title: "Small Things Like These",        h: 18.6, cover: "assets/small-things-like-these-cover.jpg",        spine: "assets/small-things-like-these-spine.png" }, // Faber hardcover (slim)
+    { title: "East of Eden",                   h: 19.8, cover: "assets/east-of-eden-cover.jpg",                   spine: "assets/east-of-eden-spine.png" },            // Penguin trade pb
+    { title: "Mother Night",                   h: 19.5, cover: "assets/mother-night.jpg",                         spine: "assets/mother-night-spine.png" },            // Dial trade pb
+    { title: "2666",                           h: 20.8, cover: "assets/2666-cover.jpg",                           spine: "assets/2666-spine.png" },                    // FSG pb (tall + thick)
+    { title: "The Unbearable Lightness of Being", h: 19.8, cover: "assets/the-unbearable-lightness-of-being-cover.jpg", spine: "assets/the-unbearable-lightness-of-being-spine.png" }, // Faber trade pb
+    { title: "The Humans",                     h: 19.8, cover: "assets/the-humans-cover.jpg",                     spine: "assets/the-humans-spine.png" },              // Canongate trade pb
+    { title: "Demon Copperhead",               h: 23.6, cover: "assets/demon-copperhead-cover.jpg",               spine: "assets/demon-copperhead-spine.png" },        // Harper hardcover (tallest)
+    { title: "Player Piano",                   h: 20.0, cover: "assets/player-piano-cover.jpg",                   spine: "assets/player-piano-spine.png" },            // Dial trade pb
+    { title: "Just Mercy",                     h: 20.1, cover: "assets/just-mercy-cover.jpg",                     spine: "assets/just-mercy-spine.png" },              // One World trade pb
+    { title: "One Hundred Years of Solitude",  h: 21.6, cover: "assets/one-hundred-years-of-solitude-cover.jpg",  spine: "assets/one-hundred-years-of-solitude-spine.png" }, // illustrated ed.
+    { title: "Cat's Cradle",                   h: 20.0, cover: "assets/cats-cradle.jpg",                          spine: "assets/cat-s-cradle-spine.png" },            // Dial trade pb
+  ];
+  const ORDER = [0,1,2,3,4,5,6,7,8,9,10];        // each book once
+  // Per-book base-tilt MAGNITUDES (grizz stores these as data-tilt; sign is applied by K()).
+  const BASE_TILT = [0, 0.9, 0.7, 1.15, 0.85, 1.0, 1.3, 0.8, 1.1, 0.95, 0.75];
+
+  // SECOND CHECK (independent of the px math): declared real-world height truths the
+  // shelf must satisfy. These are things we KNOW (a hardcover is taller than a paperback),
+  // so they catch a bad `h` estimate even when the px renders fine. verifyHeights() asserts
+  // each against both the cm source and the actually-rendered pixel height. Add rows freely.
+  const HEIGHT_CHECKS = [
+    ["Demon Copperhead", ">", "2666"],                        // Kingsolver hardcover > Bolano paperback
+    ["2666", ">", "Small Things Like These"],                 // tall thick pb > slim hardcover
+    ["Demon Copperhead", ">", "The Humans"],                  // hardcover > trade pb
+    ["One Hundred Years of Solitude", ">", "Cat's Cradle"],   // illustrated ed. > standard pb
+  ];
+  const DEBUG = /[?#&]debug/i.test(location.href);            // add #debug to the URL for labels + panel
+
+  const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+  const lerp  = (a,b,t) => a + (b - a) * t;
+  const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+
+  // grizz's K(e, sel): the tilt a book leans TO when book `sel` is open. Books lean AWAY
+  // from the open one; the lean is strongest for immediate neighbors and decays with
+  // distance, then is clamped to +-3.4 deg. This is what makes the shelf "react" on open.
+  function leanTilt(e, sel) {
+    const m = BASE_TILT[e] || 0;
+    const w = Math.abs(e - sel);              // distance from the opened book
+    const side = e < sel ? -1 : 1;            // left books lean one way, right books the other
+    const spread = Math.max(0, 1.85 - w * 0.26);   // lean magnitude, decays with distance
+    const base   = Math.abs(m) * Math.max(0.7, 1 - w * 0.04);
+    return clamp((base + spread) * side, -3.4, 3.4);
+  }
+
+  // Port of grizz's U(): project the book's 8 corners through rotateY(B)+rotate(P)
+  // and return the on-screen horizontal footprint (width) + left offset, so the
+  // shelf reflows exactly as much as a rotating book actually occupies.
+  function projected(coverW, spineW, height, B, P) {
+    const L = B * Math.PI/180, T = P * Math.PI/180;
+    const cosB = Math.cos(L), sinB = Math.sin(L), cosP = Math.cos(T), sinP = Math.sin(T);
+    const halfH = height/2;
+    const faces = [
+      { z: 0,      pts: [[0,0],[spineW,0],[0,height],[spineW,height]] }, // spine footprint
+      { z: spineW, pts: [[0,0],[coverW,0],[0,height],[coverW,height]] }, // cover face
+    ];
+    const xs = [];
+    for (const f of faces) for (const [x,y] of f.pts) {
+      const ry = y - halfH;
+      xs.push((x*cosB + f.z*sinB)*cosP - ry*sinP);
+    }
+    const min = Math.min(...xs), max = Math.max(...xs);
+    return { width: max - min, offsetX: -min };
+  }
+
+  const shelf = document.getElementById("shelf");
+  const books = [];              // { el, inner, cover, spine, coverW, spineW, heightPx }
+  const openness = [];           // 0..1 per book (animated)
+  const tilt = [];               // current lean in deg per book (animated)
+  let selected = 0;
+  let raf = 0;
+
+  function load(src) {
+    return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+  }
+
+  async function build() {
+    let maxH = 0;
+    for (let i = 0; i < ORDER.length; i++) {
+      const t = TITLES[ORDER[i]];
+      const [cImg, sImg] = await Promise.all([load(t.cover), load(t.spine)]);
+      const coverAspect = cImg ? cImg.naturalWidth / cImg.naturalHeight : 0.65;
+      const spineAspect = sImg ? sImg.naturalWidth / sImg.naturalHeight : 0.06;
+      // Real height sets the size; width & thickness fall out of the image aspects.
+      const heightPx = (t.h || 20) * PX_PER_CM;
+      const coverW = heightPx * coverAspect;
+      const spineW = heightPx * spineAspect;
+      maxH = Math.max(maxH, heightPx);
+
+      const el = document.createElement("div");
+      el.className = "book";
+      el.style.height = heightPx + "px";
+      el.style.perspective = (PERSP_RATIO * heightPx).toFixed(0) + "px"; // scale depth with book size
+      const inner = document.createElement("div");
+      inner.className = "book-inner";
+      const cover = document.createElement("img");
+      cover.className = "book-cover"; cover.src = t.cover; cover.alt = t.title; cover.draggable = false;
+      cover.style.width = coverW + "px";
+      cover.style.transform = `translateZ(${spineW}px)`;      // push front face forward by thickness
+      const spine = document.createElement("img");
+      spine.className = "book-spine"; spine.src = t.spine; spine.alt = ""; spine.draggable = false;
+      spine.style.width = spineW + "px";
+      spine.style.transform = `rotateY(-90deg)`;              // fold to left face
+      inner.appendChild(cover); inner.appendChild(spine);
+      el.appendChild(inner);
+      el.addEventListener("click", () => select(i));
+      shelf.appendChild(el);
+
+      books.push({ el, inner, cover, spine, coverW, spineW, heightPx, heightCm: t.h || 20, title: t.title });
+      openness.push(i === selected ? 1 : 0);
+    }
+    shelf.style.minHeight = maxH + "px";        // shelf accommodates the tallest book
+    for (let i = 0; i < books.length; i++) tilt[i] = leanTilt(i, selected);
+    reflow();
+    verifyHeights();
+  }
+
+  // Confirms the declared HEIGHT_CHECKS hold in BOTH the cm source values AND the actual
+  // rendered pixel heights (read back from the DOM). Always logs a table to the console;
+  // with #debug in the URL it also labels each book with its cm height and prints a panel.
+  function verifyHeights() {
+    const byTitle = {};
+    for (const b of books) byTitle[b.title] = { cm: b.heightCm, px: Math.round(b.el.getBoundingClientRect().height) };
+    const cmp = (op, x, y) => op === ">" ? x > y : op === "<" ? x < y : x === y;
+
+    const results = HEIGHT_CHECKS.map(([a, op, c]) => {
+      const A = byTitle[a], C = byTitle[c];
+      if (!A || !C) return { check: `${a} ${op} ${c}`, ok: false, note: "unknown title" };
+      const cmOk = cmp(op, A.cm, C.cm);
+      const pxOk = cmp(op, A.px, C.px);
+      return { check: `${a} ${op} ${c}`, cm: `${A.cm} vs ${C.cm}`, px: `${A.px} vs ${C.px}`, ok: cmOk && pxOk };
+    });
+
+    const failed = results.filter(r => !r.ok);
+    console.log(`%cBookshelf height checks: ${results.length - failed.length}/${results.length} passed`,
+      `font-weight:bold;color:${failed.length ? "#c0392b" : "#27ae60"}`);
+    console.table(results);
+    if (failed.length) console.warn("FAILED height checks:", failed.map(r => r.check));
+    if (DEBUG) renderDebug(results);
+    return results;
+  }
+
+  function renderDebug(results) {
+    for (const b of books) {                    // cm label above each book
+      const tag = document.createElement("div");
+      tag.textContent = b.heightCm.toFixed(1);
+      tag.style.cssText = "position:absolute;top:-19px;left:50%;transform:translateX(-50%);" +
+        "font:11px ui-monospace,monospace;color:#999;white-space:nowrap;pointer-events:none;";
+      b.el.appendChild(tag);
+    }
+    const panel = document.createElement("div");
+    panel.style.cssText = "margin:40px 0 0;font:12px ui-monospace,monospace;line-height:1.7;";
+    panel.innerHTML = "<strong>height checks (cm source | rendered px)</strong><br>" + results.map(r =>
+      `<span style="color:${r.ok ? "#27ae60" : "#c0392b"}">${r.ok ? "PASS" : "FAIL"}</span>  ${r.check}` +
+      (r.cm ? `  <span style="color:#999">(cm ${r.cm} | px ${r.px})</span>` : ` <span style="color:#999">${r.note || ""}</span>`)
+    ).join("<br>");
+    document.querySelector(".wrap").appendChild(panel);
+  }
+
+  // Apply current openness[] to every book (transform + reserved width + z-order)
+  function reflow() {
+    for (let i = 0; i < books.length; i++) {
+      const b = books[i];
+      const k = clamp(openness[i], 0, 1);
+      const B = CLOSED_Y * (1 - k);       // rotateY: 90 (closed) -> 0 (open)
+      const P = tilt[i] * (1 - k);        // lean straightens as the book opens
+      const { width, offsetX } = projected(b.coverW, b.spineW, b.heightPx, B, P);
+      b.el.style.width = width.toFixed(2) + "px";
+      b.inner.style.transform = `translateX(${offsetX.toFixed(2)}px) rotate(${P.toFixed(3)}deg) rotateY(${B.toFixed(3)}deg)`;
+      b.el.style.zIndex = k > 0.01 ? "2" : "1";
+      b.el.style.setProperty("--shadow", (0.12 + 0.22 * k).toFixed(3));
+    }
+  }
+
+  // Animate to a new selection over OPEN_MS: the chosen book's openness -> 1 and every
+  // other -> 0, while EVERY book's tilt eases toward its new lean-away target. Both the
+  // flip and the shelf's lean re-settle share the one ease-in-out-cubic curve (grizz's J).
+  function select(i) {
+    if (raf) cancelAnimationFrame(raf);
+    selected = i;
+    const openFrom = openness.slice();
+    const openTo   = books.map((_, j) => (j === i ? 1 : 0));
+    const tiltFrom = tilt.slice();
+    const tiltTo   = books.map((_, j) => leanTilt(j, i));
+    const start = performance.now();
+    function step(now) {
+      const p = clamp((now - start) / OPEN_MS, 0, 1);
+      const e = easeInOutCubic(p);
+      for (let j = 0; j < openness.length; j++) {
+        openness[j] = lerp(openFrom[j], openTo[j], e);
+        tilt[j]     = lerp(tiltFrom[j], tiltTo[j], e);
+      }
+      reflow();
+      if (p < 1) raf = requestAnimationFrame(step); else raf = 0;
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  build();
+})();
+</script>
+</body>
+</html>
