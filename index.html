@@ -59,6 +59,73 @@
     .d900 { animation-delay: 900ms; }
     .d960 { animation-delay: 960ms; }
     .d1020 { animation-delay: 1020ms; }
+
+    /* ─── Bookshelf (3D leaning, spine⇄cover flip — modelled on grizz.fyi) ─── */
+    .shelf3d {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: flex-end;
+      gap: 3px;
+      min-height: calc(var(--book-h, 230px) + 30px);
+      padding: 26px 2px 6px;
+      overflow-x: auto;
+      overflow-y: visible;
+      outline: none;
+      scrollbar-width: none;
+    }
+    .shelf3d::-webkit-scrollbar { display: none; }
+
+    .book3d {
+      flex: 0 0 auto;
+      height: var(--book-h, 230px);
+      position: relative;
+      perspective: 5000px;
+      cursor: pointer;
+      transform-origin: bottom center;
+      transition: width 520ms cubic-bezier(.23,1,.32,1), transform 520ms cubic-bezier(.23,1,.32,1);
+    }
+    .book3d-inner {
+      position: relative;
+      height: var(--book-h, 230px);
+      transform-style: preserve-3d;
+      transform-origin: left center;
+      will-change: transform;
+    }
+    .book3d.manga .book3d-inner { transform-origin: right center; }
+
+    .face {
+      position: absolute;
+      top: 0; left: 0;
+      height: var(--book-h, 230px);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 1px 2px 2px 1px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 10px 22px rgba(0,0,0,0.06);
+    }
+    .face img { display: block; height: var(--book-h, 230px); width: auto; }
+    .face-cover { z-index: 2; }
+    .face-spine { transform-origin: left center; transform: rotateY(-90deg); }
+    .book3d.manga .face-spine { transform-origin: right center; transform: rotateY(90deg); left: auto; right: 0; }
+
+    .face-faux { height: var(--book-h, 230px); display: flex; }
+    .face-faux.cover {
+      flex-direction: column; justify-content: space-between;
+      padding: 13px 11px; text-align: left;
+    }
+    .face-faux.cover .ff-title { font-weight: 600; font-size: 13px; line-height: 1.25; }
+    .face-faux.cover .ff-author { font-size: 10px; opacity: 0.7; }
+    .face-faux.spine {
+      flex-direction: column; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+    }
+    .face-faux.spine .ff-spine-title {
+      writing-mode: vertical-rl; font-weight: 600; font-size: 11px;
+      white-space: nowrap; max-height: 175px; overflow: hidden; text-overflow: ellipsis;
+    }
+    .face-faux.spine .ff-spine-author {
+      writing-mode: vertical-rl; font-size: 9.5px; opacity: 0.72; white-space: nowrap;
+    }
   </style>
 </head>
 <body class="bg-white text-black">
@@ -173,6 +240,15 @@
               </div>
             </section>
 
+            <!-- Bookshelf -->
+            <section id="bookshelf" class="flex flex-col gap-4">
+              <div class="flex items-baseline justify-between gap-4">
+                <h2 class="text-zinc-400 text-[15px] leading-[22.5px] font-normal">Bookshelf</h2>
+                <span id="shelf-caption" class="text-zinc-400 text-[13px] leading-[22.5px] truncate text-right"></span>
+              </div>
+              <div id="shelf" class="shelf" role="list" aria-label="Bookshelf"></div>
+            </section>
+
           </div><!-- /page content -->
         </div><!-- /nav + content -->
       </div><!-- /main content gap-12 -->
@@ -180,6 +256,9 @@
   </div><!-- /max-w-2xl -->
 
   <div id="agentation-root"></div>
+  <script src="/books.js"></script>
+  <script src="/bookshelf.js"></script>
   <script type="module" src="/src/main.jsx"></script>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/lahore"></script>
 </body>
 </html>
