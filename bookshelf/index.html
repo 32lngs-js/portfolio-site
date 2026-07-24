@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bookshelf — grizz.fyi replica</title>
+<title>Bookshelf Tool</title>
 <style>
   :root { --shelf-h: 340px; }
   * { box-sizing: border-box; }
@@ -88,35 +88,42 @@
   const CLOSED_Y = 90;           // rotateY when closed (spine facing you); manga would be -90
   const PX_PER_CM = 15;          // real-world scale: how many px per cm of real book height
 
-  // The shelf. `h` = real book HEIGHT in cm (drives on-screen size). Width & thickness
-  // still come from each image's aspect ratio, so one real number per book is enough.
-  // Heights are per-edition estimates from standard trim sizes; measure to refine.
+  // The shelf. `h` = real book HEIGHT in cm, taken from each edition's Amazon "Dimensions"
+  // (height = the largest of the three listed numbers). Cover width follows the cover
+  // image's own aspect ratio, so an accurate height also yields an accurate width with no
+  // image distortion. Trailing comment records the source edition + full HxWxT in cm.
   const TITLES = [
-    { title: "Small Things Like These",        h: 18.6, cover: "assets/small-things-like-these-cover.jpg",        spine: "assets/small-things-like-these-spine.png" }, // Faber hardcover (slim)
-    { title: "East of Eden",                   h: 19.8, cover: "assets/east-of-eden-cover.jpg",                   spine: "assets/east-of-eden-spine.png" },            // Penguin trade pb
-    { title: "Mother Night",                   h: 19.5, cover: "assets/mother-night.jpg",                         spine: "assets/mother-night-spine.png" },            // Dial trade pb
-    { title: "2666",                           h: 20.8, cover: "assets/2666-cover.jpg",                           spine: "assets/2666-spine.png" },                    // FSG pb (tall + thick)
-    { title: "The Unbearable Lightness of Being", h: 19.8, cover: "assets/the-unbearable-lightness-of-being-cover.jpg", spine: "assets/the-unbearable-lightness-of-being-spine.png" }, // Faber trade pb
-    { title: "The Humans",                     h: 19.8, cover: "assets/the-humans-cover.jpg",                     spine: "assets/the-humans-spine.png" },              // Canongate trade pb
-    { title: "Demon Copperhead",               h: 23.6, cover: "assets/demon-copperhead-cover.jpg",               spine: "assets/demon-copperhead-spine.png" },        // Harper hardcover (tallest)
-    { title: "Player Piano",                   h: 20.0, cover: "assets/player-piano-cover.jpg",                   spine: "assets/player-piano-spine.png" },            // Dial trade pb
-    { title: "Just Mercy",                     h: 20.1, cover: "assets/just-mercy-cover.jpg",                     spine: "assets/just-mercy-spine.png" },              // One World trade pb
-    { title: "One Hundred Years of Solitude",  h: 21.6, cover: "assets/one-hundred-years-of-solitude-cover.jpg",  spine: "assets/one-hundred-years-of-solitude-spine.png" }, // illustrated ed.
-    { title: "Cat's Cradle",                   h: 20.0, cover: "assets/cats-cradle.jpg",                          spine: "assets/cat-s-cradle-spine.png" },            // Dial trade pb
+    { title: "Small Things Like These",        h: 18.8, cover: "assets/small-things-like-these-cover.jpg",        spine: "assets/small-things-like-these-spine.png" }, // Grove hardcover; 18.8x12.5x2.0
+    { title: "Continuous Discovery Habits",    h: 22.9, cover: "assets/continuous-discovery-habits-cover.jpg",    spine: "assets/continuous-discovery-habits-spine.png" }, // Product Talk 6x9 pb; 22.9x15.2x1.5
+    { title: "East of Eden",                   h: 21.3, cover: "assets/east-of-eden-cover.jpg",                   spine: "assets/east-of-eden-spine.png" },            // Penguin Centennial pb; 21.3x14.4x3.9
+    { title: "Mother Night",                   h: 20.3, cover: "assets/mother-night.jpg",                         spine: "assets/mother-night-spine.png" },            // Dial pb; 20.3x13.3x1.6
+    { title: "2666",                           h: 20.8, cover: "assets/2666-cover.jpg",                           spine: "assets/2666-spine.png" },                    // Picador pb; 20.8x14.2x4.3
+    { title: "The Unbearable Lightness of Being", h: 20.3, cover: "assets/the-unbearable-lightness-of-being-cover.jpg", spine: "assets/the-unbearable-lightness-of-being-spine.png" }, // Harper Perennial pb; 20.3x13.5x1.8
+    { title: "Free Play",                      h: 20.3, cover: "assets/free-play-cover.jpg",                      spine: "assets/free-play-spine.png" },               // Tarcher/Perigee pb; 20.3x12.7x1.6
+    { title: "The Humans",                     h: 19.8, cover: "assets/the-humans-cover.jpg",                     spine: "assets/the-humans-spine.png" },              // Canongate pb; 19.8x12.9x2.0
+    { title: "Demon Copperhead",               h: 22.9, cover: "assets/demon-copperhead-cover.jpg",               spine: "assets/demon-copperhead-spine.png" },        // Harper hardcover; 22.9x15.2x3.8
+    { title: "Player Piano",                   h: 20.3, cover: "assets/player-piano-cover.jpg",                   spine: "assets/player-piano-spine.png" },            // Dial pb; 20.3x13.3x1.9
+    { title: "White Teeth",                    h: 21.9, cover: "assets/white-teeth-cover.jpg",                    spine: "assets/white-teeth-spine.png" },             // Vintage Intl pb; 21.9x13.0x2.5
+    { title: "Think Faster, Talk Smarter",     h: 23.1, cover: "assets/think-faster-talk-smarter-cover.jpg",     spine: "assets/think-faster-talk-smarter-spine.png" }, // Simon Element hc; 23.1x15.5x2.8
+    { title: "Just Mercy",                     h: 20.1, cover: "assets/just-mercy-cover.jpg",                     spine: "assets/just-mercy-spine.png" },              // One World pb; 20.1x13.0x2.0
+    { title: "Zen and the Art of Motorcycle Maintenance", h: 17.5, cover: "assets/zen-and-the-art-of-motorcycle-maintenance-cover.jpg", spine: "assets/zen-and-the-art-of-motorcycle-maintenance-spine.png" }, // Bantam mass-market; 17.5x10.6x2.6 (shortest)
+    { title: "Working Backwards",              h: 23.6, cover: "assets/working-backwards-cover.jpg",              spine: "assets/working-backwards-spine.png" },       // St. Martin's hc; 23.6x16.2x2.5 (tallest)
+    { title: "One Hundred Years of Solitude",  h: 20.2, cover: "assets/one-hundred-years-of-solitude-cover.jpg",  spine: "assets/one-hundred-years-of-solitude-spine.png" }, // Harper Perennial pb; 20.2x13.5x3.1 (illustrated ed. may differ)
+    { title: "Cat's Cradle",                   h: 20.2, cover: "assets/cats-cradle.jpg",                          spine: "assets/cat-s-cradle-spine.png" },            // Dial pb; 20.2x13.3x1.7
   ];
-  const ORDER = [0,1,2,3,4,5,6,7,8,9,10];        // each book once
+  const ORDER = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]; // each book once
   // Per-book base-tilt MAGNITUDES (grizz stores these as data-tilt; sign is applied by K()).
-  const BASE_TILT = [0, 0.9, 0.7, 1.15, 0.85, 1.0, 1.3, 0.8, 1.1, 0.95, 0.75];
+  const BASE_TILT = [0, 0.9, 0.7, 1.15, 0.85, 1.0, 1.3, 0.8, 1.1, 0.95, 0.75, 1.05, 0.9, 0.7, 1.2, 0.85, 1.0];
 
   // SECOND CHECK (independent of the px math): declared real-world height truths the
   // shelf must satisfy. These are things we KNOW (a hardcover is taller than a paperback),
   // so they catch a bad `h` estimate even when the px renders fine. verifyHeights() asserts
   // each against both the cm source and the actually-rendered pixel height. Add rows freely.
   const HEIGHT_CHECKS = [
-    ["Demon Copperhead", ">", "2666"],                        // Kingsolver hardcover > Bolano paperback
-    ["2666", ">", "Small Things Like These"],                 // tall thick pb > slim hardcover
-    ["Demon Copperhead", ">", "The Humans"],                  // hardcover > trade pb
-    ["One Hundred Years of Solitude", ">", "Cat's Cradle"],   // illustrated ed. > standard pb
+    ["Working Backwards", ">", "Zen and the Art of Motorcycle Maintenance"],       // tallest > shortest
+    ["Demon Copperhead", ">", "2666"],                                             // hardcover > tall thick pb
+    ["Think Faster, Talk Smarter", ">", "The Humans"],                             // hardcover > trade pb
+    ["Small Things Like These", ">", "Zen and the Art of Motorcycle Maintenance"], // slim hc > mass-market
   ];
   const DEBUG = /[?#&]debug/i.test(location.href);            // add #debug to the URL for labels + panel
 
@@ -292,5 +299,6 @@
   build();
 })();
 </script>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/havana"></script>
 </body>
 </html>
