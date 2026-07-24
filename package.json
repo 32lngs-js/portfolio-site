@@ -4,6 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "sync:books": "node scripts/sync-bookshelf-db.mjs",
+    "sync:rss": "node scripts/sync-goodreads.mjs",
+    "name": "node scripts/name-with-claude.mjs",
+    "ingest": "node scripts/ingest-prep.mjs && node scripts/sync-bookshelf-db.mjs 38480050 read",
+    "intake": "node scripts/name-with-claude.mjs && node scripts/ingest-prep.mjs && node scripts/sync-bookshelf-db.mjs 38480050 read",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
