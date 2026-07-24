@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeachBack — Christopher Grady</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { zinc: { 150: '#f0f0f1' } },
+          fontSize: { base: ['15px', { lineHeight: '1.65' }] }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-size: 15px; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+
+    @keyframes reveal {
+      from { opacity: 0; filter: blur(8px); transform: translateY(6px); }
+      to   { opacity: 1; filter: blur(0px); transform: translateY(0px); }
+    }
+    @keyframes slide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0px); }
+    }
+
+    .anim { animation-fill-mode: both; animation-timing-function: cubic-bezier(0.25, 0, 0, 1); animation-duration: 600ms; }
+    .anim-blur  { animation-name: reveal; }
+    .anim-slide { animation-name: slide; }
+
+    .d0   { animation-delay:   0ms; }
+    .d80  { animation-delay:  80ms; }
+    .d140 { animation-delay: 140ms; }
+    .d220 { animation-delay: 220ms; }
+    .d300 { animation-delay: 300ms; }
+  </style>
+</head>
+<body class="bg-white text-black">
+
+  <div class="md:min-w-[512px] md:w-full md:max-w-2xl md:mx-auto">
+    <div class="flex flex-col justify-start max-w-2xl px-8 py-24">
+
+      <!-- Avatar / Home -->
+      <div class="w-8 h-8 mb-8 anim anim-blur d0">
+        <a aria-label="Go to the homepage" href="/">
+          <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-[11px] font-medium text-zinc-400 select-none">CG</div>
+        </a>
+      </div>
+
+      <div class="flex flex-col gap-12 origin-left">
+
+        <!-- Name + Tagline -->
+        <div class="flex w-fit flex-col gap-1 anim anim-blur d80">
+          <h1 class="inline font-medium text-[30px] leading-[1.5]">Christopher Grady</h1>
+          <h2 class="text-[30px] leading-[1.4] font-normal text-zinc-400">TeachBack.</h2>
+        </div>
+
+        <div class="flex flex-col gap-12">
+
+          <!-- Nav -->
+          <nav aria-label="Portfolio sections" class="flex w-full items-center justify-end gap-6 overflow-x-auto pb-1 anim anim-slide d140">
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/">About</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/resume/">Resume</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/writing/">Writing</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/photography/">Photography</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/bookshelf/">Bookshelf</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline text-[15px]" href="/projects/" aria-current="page">
+              Projects
+              <span class="absolute inset-x-0 -bottom-px h-0.5 bg-zinc-150"></span>
+            </a>
+          </nav>
+
+          <!-- Case Study -->
+          <div class="flex flex-col gap-12 anim anim-slide d220">
+
+            <!-- Back + meta -->
+            <div class="flex flex-col gap-4">
+              <a class="text-[14px] text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline" href="/projects/">← Projects</a>
+              <div class="flex items-center gap-3">
+                <span class="text-[13px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded">In development</span>
+              </div>
+            </div>
+
+            <!-- The problem -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">The problem</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">Most AI learning tools solve the delivery problem: they explain things clearly, answer follow-up questions, generate examples. What they don't do is verify whether you actually understood. The Feynman technique works because explaining something back forces you to confront the gaps in your model. Passive consumption doesn't.</p>
+                <p class="text-[15px] leading-[24.75px]">The failure mode is comfortable: you read a good explanation, you think "yes, that makes sense," and you move on. You didn't learn it. You recognized it. Those feel the same until you have to use the knowledge.</p>
+              </div>
+            </section>
+
+            <!-- What I built -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">What I built</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">TeachBack is a voice-driven AI learn-and-teach-back loop. Pick a concept. The AI teaches it. You explain it back by voice. The AI evaluates your explanation against the underlying concept and surfaces exactly where your understanding broke down.</p>
+                <p class="text-[15px] leading-[24.75px]">Voice is the deliberate medium: typing allows you to reference notes while "explaining." Voice removes that option. If you can't say it, you don't know it.</p>
+              </div>
+            </section>
+
+            <!-- Key decisions -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">Key decisions</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">The hardest product question was what happens after you fail a concept. The natural instinct is to reteach it immediately. But re-reading the same explanation doesn't fix a flawed mental model. TeachBack surfaces the specific gap, asks a targeted question about that gap, and then queues the concept for a second teach-back at a spaced interval.</p>
+                <p class="text-[15px] leading-[24.75px]">The mastery model tracks performance across all attempts for each concept, not just the last one. Getting something right once on a second attempt is different from getting it right consistently. The denominator matters.</p>
+              </div>
+            </section>
+
+            <!-- Status -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">Status</h2>
+              <p class="text-[15px] leading-[24.75px]">In active development. Core teach-back loop is working. Current focus: voice state reliability, recap quality, and the cold-start experience for new concepts.</p>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="agentation-root"></div>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/havana"></script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

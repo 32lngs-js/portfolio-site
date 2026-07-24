@@ -3,20 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Christopher Grady — About</title>
+  <title>Christopher Grady</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            zinc: {
-              150: '#f0f0f1',
-            }
-          },
-          fontSize: {
-            base: ['15px', { lineHeight: '1.65' }],
-          }
+          colors: { zinc: { 150: '#f0f0f1' } },
+          fontSize: { base: ['15px', { lineHeight: '1.65' }] }
         }
       }
     }
@@ -34,11 +28,7 @@
       to   { opacity: 1; transform: translateY(0px); }
     }
 
-    .anim {
-      animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(0.25, 0, 0, 1);
-      animation-duration: 600ms;
-    }
+    .anim { animation-fill-mode: both; animation-timing-function: cubic-bezier(0.25, 0, 0, 1); animation-duration: 600ms; }
     .anim-blur  { animation-name: reveal; }
     .anim-slide { animation-name: slide; }
 
@@ -47,218 +37,82 @@
     .d140 { animation-delay: 140ms; }
     .d220 { animation-delay: 220ms; }
     .d300 { animation-delay: 300ms; }
-    .d360 { animation-delay: 360ms; }
-    .d420 { animation-delay: 420ms; }
-    .d480 { animation-delay: 480ms; }
-    .d540 { animation-delay: 540ms; }
-    .d600 { animation-delay: 600ms; }
-    .d660 { animation-delay: 660ms; }
-    .d720 { animation-delay: 720ms; }
-    .d780 { animation-delay: 780ms; }
-    .d840 { animation-delay: 840ms; }
-    .d900 { animation-delay: 900ms; }
-    .d960 { animation-delay: 960ms; }
-    .d1020 { animation-delay: 1020ms; }
-
-    /* ─── Bookshelf (3D leaning, spine⇄cover flip — modelled on grizz.fyi) ─── */
-    .shelf3d {
-      display: flex;
-      flex-wrap: nowrap;
-      align-items: flex-end;
-      gap: 3px;
-      min-height: calc(var(--book-h, 230px) + 30px);
-      padding: 26px 2px 6px;
-      overflow-x: auto;
-      overflow-y: visible;
-      outline: none;
-      scrollbar-width: none;
-    }
-    .shelf3d::-webkit-scrollbar { display: none; }
-
-    .book3d {
-      flex: 0 0 auto;
-      height: var(--book-h, 230px);
-      position: relative;
-      perspective: 5000px;
-      cursor: pointer;
-      transform-origin: bottom center;
-      transition: width 520ms cubic-bezier(.23,1,.32,1), transform 520ms cubic-bezier(.23,1,.32,1);
-    }
-    .book3d-inner {
-      position: relative;
-      height: var(--book-h, 230px);
-      transform-style: preserve-3d;
-      transform-origin: left center;
-      will-change: transform;
-    }
-    .book3d.manga .book3d-inner { transform-origin: right center; }
-
-    .face {
-      position: absolute;
-      top: 0; left: 0;
-      height: var(--book-h, 230px);
-      overflow: hidden;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 1px 2px 2px 1px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.16), 0 10px 22px rgba(0,0,0,0.06);
-    }
-    .face img { display: block; height: var(--book-h, 230px); width: auto; }
-    .face-cover { z-index: 2; }
-    .face-spine { transform-origin: left center; transform: rotateY(-90deg); }
-    .book3d.manga .face-spine { transform-origin: right center; transform: rotateY(90deg); left: auto; right: 0; }
-
-    .face-faux { height: var(--book-h, 230px); display: flex; }
-    .face-faux.cover {
-      flex-direction: column; justify-content: space-between;
-      padding: 13px 11px; text-align: left;
-    }
-    .face-faux.cover .ff-title { font-weight: 600; font-size: 13px; line-height: 1.25; }
-    .face-faux.cover .ff-author { font-size: 10px; opacity: 0.7; }
-    .face-faux.spine {
-      flex-direction: column; align-items: center; justify-content: space-between;
-      padding: 14px 0;
-    }
-    .face-faux.spine .ff-spine-title {
-      writing-mode: vertical-rl; font-weight: 600; font-size: 11px;
-      white-space: nowrap; max-height: 175px; overflow: hidden; text-overflow: ellipsis;
-    }
-    .face-faux.spine .ff-spine-author {
-      writing-mode: vertical-rl; font-size: 9.5px; opacity: 0.72; white-space: nowrap;
-    }
   </style>
 </head>
 <body class="bg-white text-black">
 
-  <!-- Centered container: max-w-2xl mx-auto -->
   <div class="md:min-w-[512px] md:w-full md:max-w-2xl md:mx-auto">
     <div class="flex flex-col justify-start max-w-2xl px-8 py-24">
 
-      <!-- Avatar -->
-      <div class="grid w-8 h-8 mb-8">
+      <!-- Avatar / Home -->
+      <div class="w-8 h-8 mb-8 anim anim-blur d0">
         <a aria-label="Go to the homepage" href="/">
-          <img
-            alt="Christopher Grady"
-            width="32"
-            height="32"
-            class="block h-8 w-8 rounded-full object-cover"
-            src="https://nelson.co/_next/image?url=%2Favatar.png&w=64&q=75&dpl=dpl_L93DL7u3G4rx9aryVk7JNnQNqYMU"
-          />
+          <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-[11px] font-medium text-zinc-400 select-none">CG</div>
         </a>
       </div>
 
-      <!-- Main content: gap-12 between major blocks -->
       <div class="flex flex-col gap-12 origin-left">
 
-        <!-- Name + Title -->
-        <div class="flex w-fit flex-col gap-1">
+        <!-- Name + Tagline -->
+        <div class="flex w-fit flex-col gap-1 anim anim-blur d80">
           <h1 class="inline font-medium text-[30px] leading-[1.5]">Christopher Grady</h1>
-          <h2 class="text-[30px] leading-[1.4] font-normal">
-            A solution shipper,<br>who cares deeply about both engineering and design.
+          <h2 class="text-[30px] leading-[1.4] font-normal text-zinc-400">
+            PM at Amazon in Tokyo.<br>Building tools on the side.
           </h2>
         </div>
 
-        <!-- Nav + Content -->
         <div class="flex flex-col gap-12">
 
           <!-- Nav -->
-          <nav aria-label="Portfolio sections" class="flex w-full items-center justify-end gap-6 overflow-x-auto pb-1">
-            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline hover:no-underline text-[15px]" href="https://nelson.co/">Work</a>
-            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline hover:no-underline text-[15px]" href="https://nelson.co/?section=explorations">Explorations</a>
-            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline hover:no-underline text-[15px]" href="https://nelson.co/?section=icons">App icons</a>
-            <!-- Active: About -->
-            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline hover:no-underline text-[15px]" href="https://nelson.co/?section=about" aria-current="page">
+          <nav aria-label="Portfolio sections" class="flex w-full items-center justify-end gap-6 overflow-x-auto pb-1 anim anim-slide d140">
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/resume/">Resume</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/projects/">Projects</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/writing/">Writing</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/photography/">Photography</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/bookshelf/">Bookshelf</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline text-[15px]" href="/" aria-current="page">
               About
               <span class="absolute inset-x-0 -bottom-px h-0.5 bg-zinc-150"></span>
             </a>
           </nav>
 
-          <!-- Page content -->
-          <div class="flex flex-col gap-12">
+          <!-- Content -->
+          <div class="flex flex-col gap-12 anim anim-slide d220">
 
             <!-- Bio -->
-            <section class="flex flex-col gap-4">
-              <div class="flex flex-col gap-8">
-                <p class="text-[15px] leading-[24.75px]">I am an interaction designer at <a href="https://openai.com" target="_blank" rel="noopener noreferrer">OpenAI</a> shaping ChatGPT. Previously, I spent time at Linear and GitHub.</p>
-                <p class="text-[15px] leading-[24.75px]">I focus on the intersection of form and function to create experiences that effortlessly become an extension of oneself. I believe in ideas over opinions, prototypes as the most valuable tool for collaboration, and exploring one hundred ideas to find the right one.</p>
-                <p class="text-[15px] leading-[24.75px]">I am driven by curiosity and strive for a high level of craftsmanship and excellence in my work.</p>
-              </div>
+            <section class="flex flex-col gap-8">
+              <p class="text-[15px] leading-[24.75px]">I'm a product manager at <a class="text-zinc-800 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500 transition-colors duration-200" href="https://amazon.com" target="_blank" rel="noopener noreferrer">Amazon</a> in Tokyo, where I work on AI governance and Gen AI products. Before Amazon, I led product at <a class="text-zinc-800 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500 transition-colors duration-200" href="https://edc.ca" target="_blank" rel="noopener noreferrer">Export Development Canada</a> for four years, and before that ran a digital product consultancy.</p>
+              <p class="text-[15px] leading-[24.75px]">On the side I build tools: <a class="text-zinc-800 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500 transition-colors duration-200" href="/projects/teachback/">TeachBack</a> (a voice-driven AI teach-back learning loop), <a class="text-zinc-800 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500 transition-colors duration-200" href="/projects/genna/">Genna</a> (a RAG-powered newsletter generator), and <a class="text-zinc-800 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500 transition-colors duration-200" href="/projects/typeset/">TypeSet</a> (a live typography editor that routes browser changes directly to source code).</p>
+              <p class="text-[15px] leading-[24.75px]">I think the best products get built by people fluent across product, design, and engineering. The gap between those disciplines is closing. I'm looking for a team that's already operating that way.</p>
             </section>
 
             <!-- Connect -->
-            <section id="connect" class="flex flex-col gap-4">
+            <section class="flex flex-col gap-4">
               <h2 class="text-zinc-400 text-[15px] leading-[22.5px] font-normal">Connect</h2>
               <div class="flex flex-col gap-4">
-                <a href="mailto:gavin@nelson.co" class="group inline-block">
+                <a href="mailto:chrigrad@gmail.com" class="group inline-block">
                   <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Email</span>
                 </a>
-                <a href="https://twitter.com/gavmn" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Twitter</span>
-                </a>
-                <a href="https://www.linkedin.com/in/gavin-nelson" target="_blank" rel="noopener noreferrer" class="group inline-block">
+                <a href="https://www.linkedin.com/in/christopher-grady/" target="_blank" rel="noopener noreferrer" class="group inline-block">
                   <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">LinkedIn</span>
                 </a>
-                <a href="https://github.com/gavinmn" target="_blank" rel="noopener noreferrer" class="group inline-block">
+                <a href="https://github.com/32lngs-js" target="_blank" rel="noopener noreferrer" class="group inline-block">
                   <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">GitHub</span>
                 </a>
-                <!-- Are.na (SVG logo) -->
-                <a href="https://www.are.na/gavin-n/channels" aria-label="Are.na" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black" aria-hidden="true">
-                    <svg width="21" height="13" viewBox="0 0 21 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.8036 9.00069L17.9781 6.78023C17.8052 6.6447 17.8052 6.42217 17.9781 6.28623L20.8036 4.06617C20.9769 3.93051 21.0492 3.70107 20.9645 3.55659C20.8796 3.4128 20.6427 3.36144 20.4386 3.44302L17.079 4.78108C16.8747 4.8628 16.6822 4.75099 16.6516 4.53293L16.1465 0.945948C16.1156 0.728293 15.9519 0.549805 15.7821 0.549805C15.6129 0.549805 15.4491 0.728293 15.4187 0.946219L14.9132 4.5332C14.8823 4.75126 14.6901 4.86307 14.4856 4.78135L11.1815 3.46525C10.9766 3.38366 10.6428 3.38366 10.4384 3.46525L7.13384 4.78135C6.92947 4.86307 6.73702 4.75126 6.70639 4.5332L6.20129 0.946219C6.17025 0.728293 6.0064 0.549805 5.83713 0.549805C5.66758 0.549805 5.50346 0.728293 5.47297 0.946219L4.96759 4.5332C4.93682 4.75126 4.74451 4.86307 4.54014 4.78135L1.18057 3.44329C0.976335 3.36157 0.739842 3.41307 0.655002 3.55687C0.570298 3.70134 0.642534 3.93078 0.815465 4.06644L3.64106 6.2865C3.81426 6.4223 3.81426 6.64483 3.64106 6.7805L0.81533 9.00069C0.642398 9.13649 0.570163 9.37962 0.654867 9.54076C0.739706 9.70177 0.9762 9.76669 1.18017 9.68483L4.50964 8.34772C4.71415 8.266 4.90457 8.37727 4.93317 8.59547L5.41388 12.2135C5.44288 12.4313 5.63316 12.6096 5.83686 12.6096C6.04001 12.6096 6.23042 12.4314 6.25956 12.2135L6.74068 8.59547C6.76928 8.37727 6.96037 8.266 7.16379 8.34772L10.4387 9.66206C10.6426 9.74419 10.9764 9.74419 11.1808 9.66206L14.4551 8.34772C14.6589 8.266 14.8495 8.37727 14.8786 8.59547L15.3598 12.2135C15.3885 12.4313 15.5789 12.6096 15.7819 12.6096C15.9855 12.6096 16.1759 12.4314 16.2049 12.2135L16.6857 8.59547C16.7152 8.37727 16.9053 8.266 17.1093 8.34772L20.4389 9.68483C20.6424 9.76669 20.8793 9.70177 20.9642 9.54076C21.0492 9.37962 20.9769 9.13649 20.8036 9.00069Z" fill="currentColor"/>
-                    </svg>
-                  </span>
+                <a href="https://worthshipping.substack.com/" target="_blank" rel="noopener noreferrer" class="group inline-block">
+                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Substack</span>
                 </a>
               </div>
             </section>
 
-            <!-- Features -->
-            <section id="features" class="flex flex-col gap-4">
-              <h2 class="text-zinc-400 text-[15px] leading-[22.5px] font-normal">Features</h2>
-              <div class="flex flex-col gap-4">
-                <a href="https://spaces.is/loversmagazine/interviews/gavin-nelson" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Interview with Christopher Grady, Lovers Magazine by Spaces</span>
-                </a>
-                <a href="https://www.dive.club/deep-dives/gavin-nelson" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Dive Club podcast: Prototyping, interaction design, and SwiftUI</span>
-                </a>
-                <a href="https://www.appiconbook.com/" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">iOS &amp; macOS App Icon Book</span>
-                </a>
-                <a href="https://www.workspaces.xyz/p/341-gavin-nelson" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Workspaces #341</span>
-                </a>
-                <a href="https://manual.withcompound.com/chapters/interview-with-gavin-nelson-product-and-icon-designer" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Interview with Christopher Grady, Product and Icon Designer</span>
-                </a>
-                <a href="https://www.sketch.com/blog/gavin-nelson-icon-design/" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Made with Sketch: How Christopher Grady Puts the Icon in Iconic</span>
-                </a>
-                <a href="https://www.workspaces.xyz/p/136-gavin-nelson" target="_blank" rel="noopener noreferrer" class="group inline-block">
-                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">Workspaces #136</span>
-                </a>
-              </div>
-            </section>
-
-            <!-- Bookshelf -->
-            <section id="bookshelf" class="flex flex-col gap-4">
-              <div class="flex items-baseline justify-between gap-4">
-                <h2 class="text-zinc-400 text-[15px] leading-[22.5px] font-normal">Bookshelf</h2>
-                <span id="shelf-caption" class="text-zinc-400 text-[13px] leading-[22.5px] truncate text-right"></span>
-              </div>
-              <div id="shelf" class="shelf" role="list" aria-label="Bookshelf"></div>
-            </section>
-
-          </div><!-- /page content -->
-        </div><!-- /nav + content -->
-      </div><!-- /main content gap-12 -->
-    </div><!-- /px-8 py-24 -->
-  </div><!-- /max-w-2xl -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="agentation-root"></div>
-  <script src="/books.js"></script>
-  <script src="/bookshelf.js"></script>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/havana"></script>
   <script type="module" src="/src/main.jsx"></script>
-  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/lahore"></script>
 </body>
 </html>

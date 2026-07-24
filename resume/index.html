@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Christopher Grady — Resume</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { zinc: { 150: '#f0f0f1' } },
+          fontSize: { base: ['15px', { lineHeight: '1.65' }] }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-size: 15px; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+
+    @keyframes reveal {
+      from { opacity: 0; filter: blur(8px); transform: translateY(6px); }
+      to   { opacity: 1; filter: blur(0px); transform: translateY(0px); }
+    }
+    @keyframes slide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0px); }
+    }
+
+    .anim { animation-fill-mode: both; animation-timing-function: cubic-bezier(0.25, 0, 0, 1); animation-duration: 600ms; }
+    .anim-blur  { animation-name: reveal; }
+    .anim-slide { animation-name: slide; }
+
+    .d0   { animation-delay:   0ms; }
+    .d80  { animation-delay:  80ms; }
+    .d140 { animation-delay: 140ms; }
+    .d220 { animation-delay: 220ms; }
+  </style>
+</head>
+<body class="bg-white text-black">
+
+  <div class="md:min-w-[512px] md:w-full md:max-w-2xl md:mx-auto">
+    <div class="flex flex-col justify-start max-w-2xl px-8 py-24">
+
+      <!-- Avatar / Home -->
+      <div class="w-8 h-8 mb-8 anim anim-blur d0">
+        <a aria-label="Go to the homepage" href="/">
+          <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-[11px] font-medium text-zinc-400 select-none">CG</div>
+        </a>
+      </div>
+
+      <div class="flex flex-col gap-12 origin-left">
+
+        <!-- Name + Tagline -->
+        <div class="flex w-fit flex-col gap-1 anim anim-blur d80">
+          <h1 class="inline font-medium text-[30px] leading-[1.5]">Christopher Grady</h1>
+          <h2 class="text-[30px] leading-[1.4] font-normal text-zinc-400">Work history.</h2>
+        </div>
+
+        <div class="flex flex-col gap-12">
+
+          <!-- Nav -->
+          <nav aria-label="Portfolio sections" class="flex w-full items-center justify-end gap-6 overflow-x-auto pb-1 anim anim-slide d140">
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/">About</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/projects/">Projects</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/writing/">Writing</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/photography/">Photography</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/bookshelf/">Bookshelf</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline text-[15px]" href="/resume/" aria-current="page">
+              Resume
+              <span class="absolute inset-x-0 -bottom-px h-0.5 bg-zinc-150"></span>
+            </a>
+          </nav>
+
+          <!-- Timeline -->
+          <div class="flex flex-col gap-10 anim anim-slide d220">
+
+            <div class="relative">
+              <!-- Vertical line: left = 80px (date col) + 8px (half of w-4 dot col) = 88px -->
+              <div class="absolute bg-zinc-200" style="left:88px; top:8px; bottom:8px; width:1px;"></div>
+
+              <!-- Present · Amazon -->
+              <div class="flex items-start mb-8">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Present</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-2 h-2 rounded-full bg-zinc-800 mt-1"></div>
+                </div>
+                <div class="pl-4 flex-1">
+                  <p class="text-[15px] font-medium text-zinc-900 leading-snug">Amazon</p>
+                  <p class="text-[14px] text-zinc-600 mt-0.5">Product Manager</p>
+                  <p class="text-[13px] text-zinc-400 mt-0.5">Tokyo, Japan</p>
+                </div>
+              </div>
+
+              <!-- Jun 2024 · EDC PM Lead -->
+              <div class="flex items-start mb-8">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Jun 2024</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-2 h-2 rounded-full bg-zinc-300 mt-1"></div>
+                </div>
+                <div class="pl-4 flex-1">
+                  <p class="text-[15px] font-medium text-zinc-900 leading-snug">Export Development Canada</p>
+                  <p class="text-[14px] text-zinc-600 mt-0.5">Product Management Lead, Growth &amp; Operations</p>
+                  <p class="text-[13px] text-zinc-400 mt-0.5">Ottawa, Canada</p>
+                </div>
+              </div>
+
+              <!-- Jun 2021 · EDC PM -->
+              <div class="flex items-start mb-8">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Jun 2021</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-1.5 h-1.5 rounded-full bg-zinc-200 border border-zinc-300 mt-1.5"></div>
+                </div>
+                <div class="pl-4 flex-1">
+                  <p class="text-[14px] text-zinc-600">Product Manager</p>
+                </div>
+              </div>
+
+              <!-- Jan 2021 · EDC Analyst -->
+              <div class="flex items-start mb-8">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Jan 2021</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-1.5 h-1.5 rounded-full bg-zinc-200 border border-zinc-300 mt-1.5"></div>
+                </div>
+                <div class="pl-4 flex-1">
+                  <p class="text-[14px] text-zinc-600">Sr. Analyst, Structured &amp; Project Financing</p>
+                </div>
+              </div>
+
+              <!-- Jan 2020 · gap marker -->
+              <div class="flex items-start mb-10">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Jan 2020</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-1.5 h-1.5 rounded-full bg-zinc-100 border border-zinc-200 mt-1.5"></div>
+                </div>
+                <div class="pl-4 flex-1"></div>
+              </div>
+
+              <!-- Mar 2019 · LighthouseTech -->
+              <div class="flex items-start mb-8">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">Mar 2019</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-2 h-2 rounded-full bg-zinc-300 mt-1"></div>
+                </div>
+                <div class="pl-4 flex-1">
+                  <p class="text-[15px] font-medium text-zinc-900 leading-snug">LighthouseTech.ca</p>
+                  <p class="text-[14px] text-zinc-600 mt-0.5">Founder</p>
+                  <p class="text-[13px] text-zinc-400 mt-0.5">Digital product consultancy</p>
+                </div>
+              </div>
+
+              <!-- May 2015 · end -->
+              <div class="flex items-start">
+                <span class="w-20 text-right pr-4 text-[13px] text-zinc-400 shrink-0 pt-0.5">May 2015</span>
+                <div class="w-4 flex justify-center shrink-0 relative z-10">
+                  <div class="w-1.5 h-1.5 rounded-full bg-zinc-200 border border-zinc-200 mt-1.5"></div>
+                </div>
+                <div class="pl-4 flex-1"></div>
+              </div>
+
+            </div>
+
+            <!-- Education -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">Education</h2>
+              <p class="text-[14px] text-zinc-400 italic">Add your education here.</p>
+            </section>
+
+            <!-- Contact -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">Contact</h2>
+              <div class="flex flex-col gap-3">
+                <a href="mailto:chrigrad@gmail.com" class="group inline-block">
+                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">chrigrad@gmail.com</span>
+                </a>
+                <a href="https://www.linkedin.com/in/christopher-grady/" target="_blank" rel="noopener noreferrer" class="group inline-block">
+                  <span class="inline-flex border-b-2 border-zinc-150 pb-0.5 text-zinc-800 transition-colors duration-200 group-hover:border-zinc-300 group-hover:text-black text-[15px]">linkedin.com/in/christopher-grady</span>
+                </a>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="agentation-root"></div>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/havana"></script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
