@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeSet — Christopher Grady</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { zinc: { 150: '#f0f0f1' } },
+          fontSize: { base: ['15px', { lineHeight: '1.65' }] }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-size: 15px; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; }
+
+    @keyframes reveal {
+      from { opacity: 0; filter: blur(8px); transform: translateY(6px); }
+      to   { opacity: 1; filter: blur(0px); transform: translateY(0px); }
+    }
+    @keyframes slide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0px); }
+    }
+
+    .anim { animation-fill-mode: both; animation-timing-function: cubic-bezier(0.25, 0, 0, 1); animation-duration: 600ms; }
+    .anim-blur  { animation-name: reveal; }
+    .anim-slide { animation-name: slide; }
+
+    .d0   { animation-delay:   0ms; }
+    .d80  { animation-delay:  80ms; }
+    .d140 { animation-delay: 140ms; }
+    .d220 { animation-delay: 220ms; }
+    .d300 { animation-delay: 300ms; }
+  </style>
+</head>
+<body class="bg-white text-black">
+
+  <div class="md:min-w-[512px] md:w-full md:max-w-2xl md:mx-auto">
+    <div class="flex flex-col justify-start max-w-2xl px-8 py-24">
+
+      <!-- Avatar / Home -->
+      <div class="w-8 h-8 mb-8 anim anim-blur d0">
+        <a aria-label="Go to the homepage" href="/">
+          <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-[11px] font-medium text-zinc-400 select-none">CG</div>
+        </a>
+      </div>
+
+      <div class="flex flex-col gap-12 origin-left">
+
+        <!-- Name + Tagline -->
+        <div class="flex w-fit flex-col gap-1 anim anim-blur d80">
+          <h1 class="inline font-medium text-[30px] leading-[1.5]">Christopher Grady</h1>
+          <h2 class="text-[30px] leading-[1.4] font-normal text-zinc-400">TypeSet.</h2>
+        </div>
+
+        <div class="flex flex-col gap-12">
+
+          <!-- Nav -->
+          <nav aria-label="Portfolio sections" class="flex w-full items-center justify-end gap-6 overflow-x-auto pb-1 anim anim-slide d140">
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/">About</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/resume/">Resume</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/writing/">Writing</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/photography/">Photography</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline text-[15px]" href="/bookshelf/">Bookshelf</a>
+            <a class="relative shrink-0 pb-1 text-zinc-400 no-underline text-[15px]" href="/projects/" aria-current="page">
+              Projects
+              <span class="absolute inset-x-0 -bottom-px h-0.5 bg-zinc-150"></span>
+            </a>
+          </nav>
+
+          <!-- Case Study -->
+          <div class="flex flex-col gap-12 anim anim-slide d220">
+
+            <!-- Back + meta -->
+            <div class="flex flex-col gap-4">
+              <a class="text-[14px] text-zinc-400 hover:text-zinc-700 transition-colors duration-200 no-underline" href="/projects/">← Projects</a>
+              <div class="flex items-center gap-3">
+                <span class="text-[13px] text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded">Shipped</span>
+                <a class="text-[13px] text-zinc-400 hover:text-zinc-700 transition-colors duration-200 underline decoration-zinc-200 underline-offset-2 hover:decoration-zinc-500" href="https://github.com/32lngs-js/typeset" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+              </div>
+            </div>
+
+            <!-- The problem -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">The problem</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">When you're designing in the browser, there's a constant context switch: you make a change in DevTools, you like it, then you have to find that property in your CSS or HTML and manually update it. The browser is the truth about how things look. The source should follow the browser, not the other way around.</p>
+                <p class="text-[15px] leading-[24.75px]">This problem compounds when working with an AI coding agent. The agent writes source. You evaluate the result in the browser. You want to make a small typography adjustment. You describe it in words, the agent guesses, you go back to the browser, iterate. The loop is slow.</p>
+              </div>
+            </section>
+
+            <!-- What I built -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">What I built</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">TypeSet is a browser overlay that intercepts typographic changes and routes them directly to source. Adjust font size, line height, or letter spacing in the panel, and the change writes back to the right file — a CSS property, a Tailwind class, a value in a style block.</p>
+                <p class="text-[15px] leading-[24.75px]">It's keyed by project path, so you can run multiple workspaces simultaneously without edits crossing. It integrates with Claude Code: when an agent is watching, browser edits route directly to the agent rather than writing to file, so the agent applies the change and maintains context on what changed and why.</p>
+              </div>
+            </section>
+
+            <!-- Key decisions -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">Key decisions</h2>
+              <div class="flex flex-col gap-4">
+                <p class="text-[15px] leading-[24.75px]">The hardest design decision was the Tailwind case. Tailwind stores values in class names on the element (e.g. <code class="text-[14px] bg-zinc-100 px-1 py-0.5 rounded text-zinc-700">text-[15px]</code>), not in a CSS file. Writing back to source means finding that class on the element in the HTML and replacing it with the new value. TypeSet detects whether a property is managed by Tailwind or regular CSS and handles each path differently.</p>
+                <p class="text-[15px] leading-[24.75px]">The routing model was a conscious choice over a simpler design (e.g. a devtools plugin). An overlay script served via CDN means zero toolchain config. Any page, any framework, any agent. You add one script tag and it works.</p>
+              </div>
+            </section>
+
+            <!-- The meta -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-zinc-400 text-[15px] font-normal">The meta</h2>
+              <p class="text-[15px] leading-[24.75px]">This site was built with TypeSet. The typography you're reading was tuned in the browser and routed back to source. The tool is embedded in its own case study, which is either a good signal or too clever by half.</p>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="agentation-root"></div>
+  <script src="https://32lngs-js.github.io/typeset/typeset-overlay.js" data-project="/Users/chrisgrady/conductor/workspaces/portfolio-site/havana"></script>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
